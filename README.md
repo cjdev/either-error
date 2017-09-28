@@ -11,8 +11,8 @@ Poised as a minimal alternative to `scala.util.Try` for when you need the
 flexibility to represent errors as some type other than Throwable. And because I
 got tired of copying/pasting these classes into all my other projects.
 
-Scala 2.12's monad operations for `Either` largely obviates the need for this
-library.
+Scala 2.12's monad operations for `Either` largely obviate the need for this
+library, as do scalaz's and cats'.
 
 ## Goals
 
@@ -21,6 +21,7 @@ environment. Specifically, we hope the library:
 
 - has zero dependencies,
 - exposes a stable interface,
+- interoperability with `Predef`,
 - is generic enough to require only infrequent updates.
 
 ## Minimal Setup
