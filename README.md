@@ -21,7 +21,7 @@ environment. Specifically, we hope the library:
 
 - has zero dependencies,
 - exposes a stable interface,
-- interoperability with `Predef`,
+- works well with `Predef`,
 - is generic enough to require only infrequent updates.
 
 ## Minimal Setup
