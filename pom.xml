@@ -6,7 +6,7 @@
 
     <groupId>com.cj</groupId>
     <artifactId>either-error_2.11</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 
     <properties>
         <scala_major-version>2.11</scala_major-version>

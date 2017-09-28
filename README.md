@@ -8,13 +8,11 @@ See 'LICENSE' in project root.
 ## Purpose
 
 Poised as a minimal alternative to `scala.util.Try` for when you need the
-flexibility to represent errors as some type other than Throwable.
+flexibility to represent errors as some type other than Throwable. And because I
+got tired of copying/pasting these classes into all my other projects.
 
 Scala 2.12's monad operations for `Either` largely obviates the need for this
 library.
-
-And because I got tired of copying/pasting these classes into all my other
-projects.
 
 ## Goals
 
@@ -33,7 +31,7 @@ In your 'pom.xml':
 <dependency>
     <groupId>com.cj</groupId>
     <artifactId>either-error_2.11</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
