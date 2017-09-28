@@ -208,7 +208,7 @@ class EitherMonadDoc extends FlatSpec with Matchers {
     def flakeyIOAction(): Either[Err, Unit] = failure("Ran out of internet.")
 
     // when
-    val result = flakeyIOAction() and Right(reportSuccess())
+    flakeyIOAction() and Right(reportSuccess())
 
     // then
     withClue("Since `flakeyIOAction' failed, we didn't report success: ") {
