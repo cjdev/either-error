@@ -17,7 +17,7 @@ class EitherMonadDoc extends FlatSpec with Matchers {
   case class Err(msg: String, code: Int)
 
   // Define an implicit Error instance so that `safely', `ensure', and `failure' work.
-  implicit val errorErr: Error[Err] = new Error[Err] {
+  implicit val errorErr: ErrorC[Err] = new ErrorC[Err] {
     def fromMessage(msg: String): Err = Err(msg, msg.length)
   }
 
@@ -38,18 +38,18 @@ class EitherMonadDoc extends FlatSpec with Matchers {
   "`failure'" should "be used to construct Left values" in {
 
     // call `failure' without an argument
-    failure shouldBe Left(Error.getDefault)
+    failure shouldBe Left(ErrorC.getDefault)
 
     // or call with a value of your chosen Error type
     failure(Err("Date is prior to beginning of time.", 19691231)) shouldBe
       Left(Err("Date is prior to beginning of time.", 19691231))
 
     // or call with a custom message
-    failure("This is not an Err") shouldBe Left(Error.fromMessage("This is not an Err"))
+    failure("This is not an Err") shouldBe Left(ErrorC.fromMessage("This is not an Err"))
 
     // or call with a throwable
     val exc = new RuntimeException("This is not an Err")
-    failure(exc) shouldBe Left(Error.fromThrowable(exc))
+    failure(exc) shouldBe Left(ErrorC.fromThrowable(exc))
   }
 
   "`safely'" should "be used to fence code blocks that can fail" in {
@@ -58,13 +58,13 @@ class EitherMonadDoc extends FlatSpec with Matchers {
     safely { "5".toInt } shouldBe Right(5)
 
     // example failure
-    safely { "five".toInt } shouldBe Left(Error.fromMessage(
+    safely { "five".toInt } shouldBe Left(ErrorC.fromMessage(
       "java.lang.NumberFormatException: For input string: \"five\""
     ))
 
     // optionally provide a custom message or a throwable
     safely("five".toInt, "Well, shucks.") shouldBe
-      Left(Error.fromMessage("Well, shucks."))
+      Left(ErrorC.fromMessage("Well, shucks."))
   }
 
   "`ensure'" should "convert a boolean expression to an Either value" in {
@@ -74,10 +74,10 @@ class EitherMonadDoc extends FlatSpec with Matchers {
 
     // example failure
     ensure(0 == 1, "They were not the same!") shouldBe
-      Left(Error.fromMessage("They were not the same!"))
+      Left(ErrorC.fromMessage("They were not the same!"))
 
     // the message is optional
-    ensure { 0 == 1 } shouldBe Left(Error.getDefault)
+    ensure { 0 == 1 } shouldBe Left(ErrorC.getDefault)
   }
 
   "`fold'" should "be used to destructure and branch" in {
@@ -273,7 +273,7 @@ class EitherMonadDoc extends FlatSpec with Matchers {
     // then
     safeFunction2("12") shouldBe Right(12)
 
-    safeFunction2("twelve") shouldBe Left(Error.fromMessage(
+    safeFunction2("twelve") shouldBe Left(ErrorC.fromMessage(
       "java.lang.NumberFormatException: For input string: \"twelve\""
     ))
   }
@@ -285,7 +285,7 @@ class EitherMonadDoc extends FlatSpec with Matchers {
     // then
     safeFunction3("12") shouldBe Right(12)
 
-    safeFunction3("twelve") shouldBe Left(Error.fromMessage(
+    safeFunction3("twelve") shouldBe Left(ErrorC.fromMessage(
       "java.lang.NumberFormatException: For input string: \"twelve\""
     ))
   }
@@ -303,7 +303,7 @@ class EitherMonadDoc extends FlatSpec with Matchers {
     withdrawCash(1000, 100) shouldBe Right(900)
 
     withdrawCash(100, 1000) shouldBe
-      Left(Error.fromMessage("Insufficient Funds!"))
+      Left(ErrorC.fromMessage("Insufficient Funds!"))
   }
 
   "`ensure'" should "be able to accomplish the same thing in a for comprehension" in {
@@ -319,7 +319,7 @@ class EitherMonadDoc extends FlatSpec with Matchers {
     withdrawCash(1000, 100) shouldBe Right(900)
 
     withdrawCash(100, 1000) shouldBe
-      Left(Error.fromMessage("Insufficient Funds!"))
+      Left(ErrorC.fromMessage("Insufficient Funds!"))
   }
 
   "`ensure'" should "work with `and' outside of for comprehension too" in {
@@ -331,7 +331,7 @@ class EitherMonadDoc extends FlatSpec with Matchers {
     withdrawCash(1000, 100) shouldBe Right(900)
 
     withdrawCash(100, 1000) shouldBe
-      Left(Error.fromMessage("Insufficient Funds!"))
+      Left(ErrorC.fromMessage("Insufficient Funds!"))
   }
 
   "Either-y computations and Either-y results" should "be chainable" in {
@@ -348,11 +348,11 @@ class EitherMonadDoc extends FlatSpec with Matchers {
     // then
     atmTxn("12", 100) shouldBe Right(88)
 
-    atmTxn("twelve", 100) shouldBe Left(Error.fromMessage(
+    atmTxn("twelve", 100) shouldBe Left(ErrorC.fromMessage(
       "java.lang.NumberFormatException: For input string: \"twelve\""
     ))
 
-    atmTxn("12", 10) shouldBe Left(Error.fromMessage("Insufficient Funds!"))
+    atmTxn("12", 10) shouldBe Left(ErrorC.fromMessage("Insufficient Funds!"))
   }
 
   "`ensure'" should "be usable in arbitrary for comprehensions" in {
@@ -366,10 +366,10 @@ class EitherMonadDoc extends FlatSpec with Matchers {
     } yield f(a1, a2)
 
     // then
-    doIfDistinct(_+_)(Right(12), failure) shouldBe Left(Error.getDefault)
+    doIfDistinct(_+_)(Right(12), failure) shouldBe Left(ErrorC.getDefault)
 
     doIfDistinct(_*_)(Right(12), Right(12)) shouldBe
-      Left(Error.fromMessage("Values not distinct!"))
+      Left(ErrorC.fromMessage("Values not distinct!"))
 
     doIfDistinct(_/_)(Right(12), Right(4)) shouldBe Right(3)
   }
@@ -434,10 +434,10 @@ class EitherMonadDoc extends FlatSpec with Matchers {
     bind2(div)(`12`, `3`) shouldBe Right(12 / 3)
 
     bind2(div)(sayPlz, `3`) shouldBe
-      Left(Error.fromMessage("You didn't say the magic word!"))
+      Left(ErrorC.fromMessage("You didn't say the magic word!"))
 
     bind2(div)(`12`, `0`) shouldBe
-      Left(Error.fromMessage("Division by zero!"))
+      Left(ErrorC.fromMessage("Division by zero!"))
   }
 
   // `lift' is basically `map', but for higher-arity functions
@@ -457,7 +457,7 @@ class EitherMonadDoc extends FlatSpec with Matchers {
     // liftN: ((A1,...,AN) => B) => ((Either[*,A1],...,Either[*,AN]) => Either[*,B])
     lift(plus2)(`12`) shouldBe Right(plus2(12))
     lift2(sumTwo)(`12`, `10`) shouldBe Right(sumTwo(12, 10))
-    lift3(sumThree)(`12`, `10`, err) shouldBe Left(Error.getDefault)
+    lift3(sumThree)(`12`, `10`, err) shouldBe Left(ErrorC.getDefault)
   }
 
   "`safe'`" should "be used to convert flakey functions into Either-y functions" in {
@@ -476,7 +476,7 @@ class EitherMonadDoc extends FlatSpec with Matchers {
     // then
     readAndAdd(`10`, `12`) shouldBe Right(22)
 
-    readAndAdd(`10`, twelve) shouldBe Left(Error.fromMessage(
+    readAndAdd(`10`, twelve) shouldBe Left(ErrorC.fromMessage(
       "java.lang.NumberFormatException: For input string: \"twelve\""
     ))
   }
@@ -494,7 +494,7 @@ class EitherMonadDoc extends FlatSpec with Matchers {
     // then
     readAndAdd(`10`, `12`) shouldBe Right(22)
 
-    readAndAdd(`10`, twelve) shouldBe Left(Error.fromMessage(
+    readAndAdd(`10`, twelve) shouldBe Left(ErrorC.fromMessage(
       "java.lang.NumberFormatException: For input string: \"twelve\""
     ))
   }
@@ -516,7 +516,7 @@ class EitherMonadDoc extends FlatSpec with Matchers {
     } yield quot
 
     // then
-    result shouldBe Left(Error.fromMessage(
+    result shouldBe Left(ErrorC.fromMessage(
       "java.lang.NumberFormatException: For input string: \"twelve\""
     ))
   }
@@ -551,7 +551,7 @@ class EitherMonadDoc extends FlatSpec with Matchers {
     }
     withClue("Succeeds only if each list elem is a success: ") {
       sequence(eithers :+ failure("oops")) shouldBe
-        Left(Error.fromMessage("oops"))
+        Left(ErrorC.fromMessage("oops"))
     }
   }
 
@@ -569,7 +569,7 @@ class EitherMonadDoc extends FlatSpec with Matchers {
       traverse(ints)(readInt) shouldBe Right(List(1, 2, 3))
     }
     withClue("Succeeds only if each application succeeds: ") {
-      traverse(ints :+ "twelve")(readInt) shouldBe Left(Error.fromMessage(
+      traverse(ints :+ "twelve")(readInt) shouldBe Left(ErrorC.fromMessage(
         "java.lang.NumberFormatException: For input string: \"twelve\""
       ))
     }

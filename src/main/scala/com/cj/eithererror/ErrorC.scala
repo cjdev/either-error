@@ -4,7 +4,7 @@ package com.cj.eithererror
 
 import scala.reflect.ClassTag
 
-trait Error[E] extends ClassTag[E] {
+trait ErrorC[E] extends ClassTag[E] {
   def getDefault: E = fromMessage("")
   def fromMessage(msg: String): E
   def fromThrowable(err: Throwable): E = fromMessage(err.toString)
@@ -12,34 +12,34 @@ trait Error[E] extends ClassTag[E] {
   final override def runtimeClass: java.lang.Class[_] = getDefault.getClass
 }
 
-object Error {
+object ErrorC {
 
-  def getDefault[E: Error]: E =
-    implicitly[Error[E]].getDefault
+  def getDefault[E: ErrorC]: E =
+    implicitly[ErrorC[E]].getDefault
 
-  def fromMessage[E: Error](msg: String): E =
-    implicitly[Error[E]].fromMessage(msg)
+  def fromMessage[E: ErrorC](msg: String): E =
+    implicitly[ErrorC[E]].fromMessage(msg)
 
-  def fromThrowable[E: Error](err: Throwable): E =
-    implicitly[Error[E]].fromThrowable(err)
+  def fromThrowable[E: ErrorC](err: Throwable): E =
+    implicitly[ErrorC[E]].fromThrowable(err)
 
-  def toThrowable[E: Error](e: E): Throwable =
-    implicitly[Error[E]].toThrowable(e)
+  def toThrowable[E: ErrorC](e: E): Throwable =
+    implicitly[ErrorC[E]].toThrowable(e)
 
   object Instances {
 
-    implicit lazy val errorString: Error[String] = new Error[String] {
+    implicit lazy val errorString: ErrorC[String] = new ErrorC[String] {
       def fromMessage(msg: String): String = msg
     }
 
-    implicit lazy val errorThrowable: Error[Throwable] = new Error[Throwable] {
+    implicit lazy val errorThrowable: ErrorC[Throwable] = new ErrorC[Throwable] {
       def fromMessage(msg: String): Throwable = new Throwable(msg)
       override def getDefault: Throwable = new Throwable
       override def fromThrowable(err: Throwable): Throwable = err
       override def toThrowable(e: Throwable): Throwable = e
     }
 
-    implicit lazy val errorException: Error[Exception] = new Error[Exception] {
+    implicit lazy val errorException: ErrorC[Exception] = new ErrorC[Exception] {
       def fromMessage(msg: String): Exception = new Exception(msg)
       override def getDefault: Exception = new Exception
       override def toThrowable(e: Exception): Throwable = e

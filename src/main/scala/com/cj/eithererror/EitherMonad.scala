@@ -7,23 +7,23 @@ import scala.collection.{TraversableLike, mutable}
 
 object EitherMonad {
 
-  def safely[E: Error, A](a: => A, alt: => Any): Either[E, A] =
+  def safely[E: ErrorC, A](a: => A, alt: => Any): Either[E, A] =
     safelyPrimitive(a).left.map(_ => coerceAlt(alt))
 
-  def safely[E: Error, A](a: => A): Either[E, A] =
-    safelyPrimitive(a).left.map(e => Error.fromThrowable(e))
+  def safely[E: ErrorC, A](a: => A): Either[E, A] =
+    safelyPrimitive(a).left.map(e => ErrorC.fromThrowable(e))
 
-  def ensure[E: Error](p: Boolean, alt: => Any): Either[E, Unit] =
+  def ensure[E: ErrorC](p: Boolean, alt: => Any): Either[E, Unit] =
     ensurePrimitive(p).left.map(_ => coerceAlt(alt))
 
-  def ensure[E: Error](p: Boolean): Either[E, Unit] =
-    ensurePrimitive(p).left.map(_ => Error.getDefault)
+  def ensure[E: ErrorC](p: Boolean): Either[E, Unit] =
+    ensurePrimitive(p).left.map(_ => ErrorC.getDefault)
 
-  def failure[E: Error, A](alt: Any): Either[E, A] =
+  def failure[E: ErrorC, A](alt: Any): Either[E, A] =
     Left(coerceAlt(alt))
 
-  def failure[E: Error, A]: Either[E, A] =
-    Left(Error.getDefault)
+  def failure[E: ErrorC, A]: Either[E, A] =
+    Left(ErrorC.getDefault)
 
   implicit class EitherMonadInstance[E, A](self: Either[E, A]) {
 
@@ -37,8 +37,8 @@ object EitherMonad {
       self.fold(_ => a, identity)
 
     @throws[Throwable]("Throws if instance is a Left Either.")
-    def getOrThrow(implicit ev: Error[E]): A =
-      self.fold(e => throw Error.toThrowable(e), identity)
+    def getOrThrow(implicit ev: ErrorC[E]): A =
+      self.fold(e => throw ErrorC.toThrowable(e), identity)
 
     def foreach(f: A => Unit): Unit =
       self.fold(_ => {}, a => f(a))
@@ -49,10 +49,10 @@ object EitherMonad {
     def flatMap[B](k: A => Either[E, B]): Either[E, B] =
       self.fold(e => Left(e), a => k(a))
 
-    def filter(p: A => Boolean)(implicit ev: Error[E]): Either[E, A] =
+    def filter(p: A => Boolean)(implicit ev: ErrorC[E]): Either[E, A] =
       flatMap(a => if (p(a)) Right(a) else failure)
 
-    def withFilter(p: A => Boolean)(implicit ev: Error[E]): Either[E, A] =
+    def withFilter(p: A => Boolean)(implicit ev: ErrorC[E]): Either[E, A] =
       filter(p)
 
     def ap[B](ef: Either[E, A => B]): Either[E, B] =
@@ -74,18 +74,18 @@ object EitherMonad {
       self.fold(e => Left(f(e)), Right(_))
   }
 
-  def safe[E: Error, A, X](f: A => X): A => Either[E, X] =
+  def safe[E: ErrorC, A, X](f: A => X): A => Either[E, X] =
     a => safely(f(a))
 
-  def safe2[E: Error, A, B, X](f: (A, B) => X):
+  def safe2[E: ErrorC, A, B, X](f: (A, B) => X):
   (A, B) => Either[E, X] =
     (a, b) => safely(f(a, b))
 
-  def safe3[E: Error, A, B, C, X](f: (A, B, C) => X):
+  def safe3[E: ErrorC, A, B, C, X](f: (A, B, C) => X):
   (A, B, C) => Either[E, X] =
     (a, b, c) => safely(f(a, b, c))
 
-  def safe4[E: Error, A, B, C, D, X](f: (A, B, C, D) => X):
+  def safe4[E: ErrorC, A, B, C, D, X](f: (A, B, C, D) => X):
   (A, B, C, D) => Either[E, X] =
     (a, b, c, d) => safely(f(a, b, c, d))
 
@@ -180,11 +180,11 @@ object EitherMonad {
   private def ensurePrimitive[A](p: Boolean): Either[Unit, Unit] =
     if (p) Right(()) else Left(())
 
-  private def coerceAlt[E: Error](alt: Any): E =
+  private def coerceAlt[E: ErrorC](alt: Any): E =
     alt match {
       case e: E => e
-      case msg: String => Error.fromMessage(msg)
-      case err: Throwable => Error.fromThrowable(err)
-      case _ => Error.fromMessage(alt.toString)
+      case msg: String => ErrorC.fromMessage(msg)
+      case err: Throwable => ErrorC.fromThrowable(err)
+      case _ => ErrorC.fromMessage(alt.toString)
     }
 }

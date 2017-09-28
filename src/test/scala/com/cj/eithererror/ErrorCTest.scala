@@ -4,7 +4,7 @@ package com.cj.eithererror
 
 import org.scalatest.{FlatSpec, Matchers}
 
-class ErrorTest extends FlatSpec with Matchers {
+class ErrorCTest extends FlatSpec with Matchers {
 
-  // TODO: figure out some laws for Error and check my instances
+  // TODO: figure out some laws for ErrorC and check my instances
 }
