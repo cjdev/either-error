@@ -25,7 +25,7 @@ object EitherMonad {
   def failure[E: ErrorC, A]: Either[E, A] =
     Left(ErrorC.getDefault)
 
-  implicit class EitherMonadInstance[E, A](self: Either[E, A]) {
+  implicit class EitherMonadInstance[E, A](val self: Either[E, A]) {
 
     def get: Option[A] =
       self.fold(_ => None, Option(_))
