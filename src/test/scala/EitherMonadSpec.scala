@@ -1,22 +1,21 @@
 // Copyright (c) 2017 CJ Engineering under the terms of the MIT License
 // See LICENSE in project root.
-package com.cj.eithererror
-
 import org.scalatest.{FlatSpec, Matchers}
 
-class EitherMonadDoc extends FlatSpec with Matchers {
+class EitherMonadSpec extends FlatSpec with Matchers {
 
   // The EitherMonad interface provides automatic marshalling/unmarshalling
   // combinators for functions and values that have the possibility of failure.
 
   // imports `safely', `ensure', `failure', `safe', `lift', `bind', `traverse',
   // `sequence', `successes', and extra instance methods for `Either[*,*]'
-  import EitherMonad._
+  import com.cj.eithererror.EitherMonad._
 
   // Use whatever type for your errors.
   case class Err(msg: String, code: Int)
 
   // Define an implicit Error instance so that `safely', `ensure', and `failure' work.
+  import com.cj.eithererror.ErrorC
   implicit val errorErr: ErrorC[Err] = new ErrorC[Err] {
     def fromMessage(msg: String): Err = Err(msg, msg.length)
   }

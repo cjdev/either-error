@@ -58,4 +58,4 @@ The entry points are `EM.safely`, `EM.ensure`, and `EM.failure`.
 ## Documentation
 
 See documenting comments and tests in
-'test/scala/com/cj/eithererror/EitherMonadDoc.scala'.
+'test/scala/EitherMonadSpec.scala'.
