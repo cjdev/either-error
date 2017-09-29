@@ -11,8 +11,8 @@ public class ErrorStrategies {
     public static ErrorStrategy<Throwable> throwable;
 
     static {
-        string = Cnv.cnv(Cnv.string());
-        exception = Cnv.cnv(Cnv.exception());
-        throwable = Cnv.cnv(Cnv.throwable());
+        string = Impl.string();
+        exception = Impl.exception();
+        throwable = Impl.throwable();
     }
 }

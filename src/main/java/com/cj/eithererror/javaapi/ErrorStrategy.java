@@ -6,9 +6,15 @@ public interface ErrorStrategy<E> {
 
     E fromMessage(String msg);
 
-    E getDefault();
+    default E getDefault() {
+        return fromMessage("");
+    }
 
-    E fromThrowable(Throwable err);
+    default E fromThrowable(Throwable err) {
+        return fromMessage(err.toString());
+    }
 
-    Throwable toThrowable(E e);
+    default Throwable toThrowable(E e) {
+        return new Exception(e.toString());
+    }
 }

@@ -2,7 +2,6 @@
 // See LICENSE in project root.
 package com.cj.eithererror.javaapi;
 
-import com.cj.eithererror.EitherMonad.EitherMonadInstance;
 import com.cj.eithererror.ErrorC;
 
 import java.util.Optional;
@@ -16,93 +15,112 @@ public class EitherContext<E> {
 
     private final ErrorC<E> ev;
 
-    private final EitherContext<E> context;
+    private final EitherContext<E> ctx;
 
     public EitherContext(ErrorStrategy<E> strategy) {
         this.strategy = strategy;
-        this.ev = Cnv.cnv(strategy);
-        this.context = this;
+        this.ev = Impl.inst(strategy);
+        this.ctx = this;
     }
 
     final class Either<A> {
 
-        protected final EitherMonadInstance<E, A> repr;
+        protected final scala.util.Either<E, A> repr;
 
-        private Either(EitherMonadInstance<E, A> repr) {
+        private Either(scala.util.Either<E, A> repr) {
             this.repr = repr;
         }
 
         public <X> X fold(Function<E, X> withLeft, Function<A, X> withRight) {
-            return repr.self().fold(Cnv.cnv(withLeft), Cnv.cnv(withRight));
+            return Impl.<E,A,X>fold(repr, withLeft, withRight);
         }
 
         public Optional<A> get() {
-            return Cnv.cnv(repr.get());
+            return Impl.<E,A>get(repr);
         }
 
         public Optional<E> getError() {
-            return Cnv.cnv(repr.getError());
+            return Impl.<E,A>getError(repr);
         }
 
         public A getOrElse(A a) {
-            return repr.getOrElse(a);
+            return Impl.<E,A>getOrElse(repr, a);
         }
 
         public A getOrThrow() throws Throwable {
-            return repr.getOrThrow(ev);
+            return Impl.<E,A>getOrThrow(ev, repr);
         }
 
         public void foreach(Consumer<A> f) {
-            repr.foreach(Cnv.cnv(f));
+            Impl.<E,A>foreach(repr, f);
         }
 
         public <B> Either<B> map(Function<A, B> f) {
-            return new Either<B>(Cnv.cnv(repr.<B>map(Cnv.cnv(f))));
+            return new Either<B>(Impl.<E,A,B>map(repr, f));
         }
 
         public <B> Either<B> flatMap(Function<A, Either<B>> f) {
-            return new Either<B>(Cnv.<E, B>cnv(repr.<B>flatMap(
-                    Cnv.<E, A, B>kleisli(context).apply(f))));
+            return new Either<B>(Impl.<E,A,B>flatMap(ctx, repr, f));
         }
 
         public Either<A> filter(Function<A, Boolean> p) {
-            return new Either<A>(Cnv.cnv(repr.filter(Cnv.<A>pred(p), ev)));
+            return new Either<A>(Impl.<E,A>filter(ev, repr, p));
+        }
+
+        public <B> Either<B> and(Either<B> other) {
+            return new Either<B>(Impl.<E,A,B>and1(ctx, repr, other));
         }
 
         public <B> Either<B> and(Supplier<Either<B>> other) {
-            return null;
+            return new Either<B>(Impl.<E,A,B>and2(ctx, repr, other));
+        }
+
+        public Either<A> or(Either<A> other) {
+            return new Either<A>(Impl.<E,A>or1(ctx, repr, other));
         }
 
         public Either<A> or(Supplier<Either<A>> other) {
-            return null;
+            return new Either<A>(Impl.<E,A>or2(ctx, repr, other));
         }
 
         public Either<A> recover(Function<E, Either<A>> f) {
-            return null;
+            return new Either<A>(Impl.<E,A>recover(ctx, repr, f));
         }
     }
 
+    public <A> Either<A> unsafe(A a) {
+        return new Either<A>(Impl.<E,A>unsafe(a));
+    }
+
+    public <A> Either<A> safely(Supplier<A> a, Object alt) {
+        return new Either<A>(Impl.<E,A>safely1(ev, a, alt));
+    }
+
     public <A> Either<A> safely(Supplier<A> a, Supplier<Object> alt) {
-        return null;
+        return new Either<A>(Impl.<E,A>safely2(ev, a, alt));
     }
 
     public <A> Either<A> safely(Supplier<A> a) {
-        return null;
+        return new Either<A>(Impl.<E,A>safely3(ev, a));
     }
 
-    public Either<Unity> ensure(boolean p, Supplier<Object> alt) {
-        return null;
+    public Either<Unity> ensure(Boolean p, Object alt) {
+        return new Either<Unity>(Impl.<E>ensure1(ev, p, alt));
     }
 
-    public Either<Unity> ensure(boolean p) {
-        return null;
+    public Either<Unity> ensure(Boolean p, Supplier<Object> alt) {
+        return new Either<Unity>(Impl.<E>ensure2(ev, p, alt));
+    }
+
+    public Either<Unity> ensure(Boolean p) {
+        return new Either<Unity>(Impl.<E>ensure3(ev, p));
     }
 
     public <A> Either<A> failure(Object alt) {
-        return null;
+        return new Either<A>(Impl.<E,A>failure1(ev, alt));
     }
 
     public <A> Either<A> failure() {
-        return null;
+        return new Either<A>(Impl.<E,A>failure2(ev));
     }
 }
