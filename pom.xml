@@ -6,15 +6,22 @@
 
     <groupId>com.cj</groupId>
     <artifactId>either-error_2.11</artifactId>
-    <version>1.0.1</version>
+    <version>1.1.0-SNAPSHOT</version>
+
+
 
     <properties>
         <scala_major-version>2.11</scala_major-version>
         <scala_minor-version>2.11.11</scala_minor-version>
+        <java_source-version>1.8</java_source-version>
+        <java_target-version>1.8</java_target-version>
         <scalatest_version>3.0.4</scalatest_version>
+        <maven-compiler-plugin_version>3.7.0</maven-compiler-plugin_version>
         <scala-maven-plugin_version>3.3.1</scala-maven-plugin_version>
         <scalatest-maven-plugin_version>1.0</scalatest-maven-plugin_version>
     </properties>
+
+
 
     <dependencies>
 
@@ -45,6 +52,16 @@
 
     <build>
         <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin_version}</version>
+                <configuration>
+                    <source>${java_source-version}</source>
+                    <target>${java_target-version}</target>
+                </configuration>
+            </plugin>
 
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
