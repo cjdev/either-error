@@ -1,5 +1,6 @@
 // Copyright (c) 2017 CJ Engineering under the terms of the MIT License
 // See LICENSE in project root.
+
 import org.scalatest.{FlatSpec, Matchers}
 
 class EitherMonadSpec extends FlatSpec with Matchers {
@@ -123,6 +124,7 @@ class EitherMonadSpec extends FlatSpec with Matchers {
     def handleFoo(foo: Foo): Int = 200
 
     // when
+    // This source prints an error-level log message, yet compiles successfully
     def yourConsumer(ef: Either[Err,Foo]): Int =
       ef match {
         // It's a trap!

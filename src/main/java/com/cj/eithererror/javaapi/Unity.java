@@ -1,10 +1,11 @@
 // Copyright (c) 2017 CJ Engineering under the terms of the MIT License
 // See LICENSE in project root.
+
 package com.cj.eithererror.javaapi;
 
 import java.io.Serializable;
 
-final class Unity implements Serializable {
+public final class Unity implements Serializable {
 
     public static Unity instance;
 

@@ -1,5 +1,6 @@
 // Copyright (c) 2017 CJ Engineering under the terms of the MIT License
 // See LICENSE in project root.
+
 package com.cj.eithererror.javaapi;
 
 import com.cj.eithererror.ErrorC;
@@ -23,7 +24,7 @@ public class EitherContext<E> {
         this.ctx = this;
     }
 
-    final class Either<A> {
+    public final class Either<A> {
 
         protected final scala.util.Either<E, A> repr;
 

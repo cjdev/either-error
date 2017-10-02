@@ -26,32 +26,54 @@
     <dependencies>
 
         <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>${scala_minor-version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_${scala_major-version}</artifactId>
             <scope>test</scope>
             <version>${scalatest_version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.scalacheck</groupId>
+            <artifactId>scalacheck_2.11</artifactId>
+            <version>1.13.5</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
-
-
-
-    <dependencyManagement>
-        <dependencies>
-
-            <dependency>
-                <groupId>org.scala-lang</groupId>
-                <artifactId>scala-library</artifactId>
-                <version>${scala_minor-version}</version>
-            </dependency>
-
-        </dependencies>
-    </dependencyManagement>
 
 
 
     <build>
         <plugins>
+
+            <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+                <version>${scala-maven-plugin_version}</version>
+                <executions>
+                    <execution>
+                        <id>scala-compile-first</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                            <goal>compile</goal>
+                            <!--<goal>testCompile</goal>-->
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>scala-test-compile</id>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -61,19 +83,9 @@
                     <source>${java_source-version}</source>
                     <target>${java_target-version}</target>
                 </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>net.alchim31.maven</groupId>
-                <artifactId>scala-maven-plugin</artifactId>
-                <version>${scala-maven-plugin_version}</version>
                 <executions>
                     <execution>
-                        <id>compile</id>
-                        <goals>
-                            <goal>compile</goal>
-                            <goal>testCompile</goal>
-                        </goals>
+                        <phase>compile</phase>
                     </execution>
                 </executions>
             </plugin>
