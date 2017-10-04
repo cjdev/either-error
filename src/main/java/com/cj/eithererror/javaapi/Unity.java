@@ -7,13 +7,13 @@ import java.io.Serializable;
 
 public final class Unity implements Serializable {
 
-    public static Unity instance;
-
-    private Unity() {}
+    public static final Unity instance;
 
     static {
         instance = new Unity();
     }
+
+    private Unity() {}
 
     public boolean equals(Object other) {
         return other instanceof Unity;

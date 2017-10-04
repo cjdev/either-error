@@ -16,15 +16,43 @@ public class ErrorStrategiesSpec {
                 strategy != null);
     }
 
+    public static void stringShouldBeFinal() {
+        throw new RuntimeException("Test not implemented");
+    }
+
     public static void exceptionShouldBeVisible() {
         ErrorStrategy<Exception> strategy = ErrorStrategies.exception;
         assert_("ErrorStrategies.exception should be visible.",
                 strategy != null);
     }
 
+    public static void exceptionShouldBeFinal() {
+        throw new RuntimeException("Test not implemented");
+    }
+
     public static void throwableShouldBeVisible() {
         ErrorStrategy<Throwable> strategy = ErrorStrategies.throwable;
         assert_("ErrorStrategies.throwable should be visible.",
                 strategy != null);
+    }
+
+    public static void throwableShouldBeFinal() {
+        throw new RuntimeException("Test not implemented");
+    }
+
+    public static void messageAndCauseShouldBeVisible() {
+        throw new RuntimeException("Test not implemented");
+    }
+
+    public static void messageAndCauseShouldBeFinal() {
+        throw new RuntimeException("Test not implemented");
+    }
+
+    public static void classNameAndMessageShouldBeVisible() {
+        throw new RuntimeException("Test not implemented");
+    }
+
+    public static void classNameAndMessageShouldBeFinal() {
+        throw new RuntimeException("Test not implemented");
     }
 }

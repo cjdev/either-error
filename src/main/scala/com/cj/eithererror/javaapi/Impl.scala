@@ -4,6 +4,7 @@
 package com.cj.eithererror
 package javaapi
 
+import java.util.AbstractMap.SimpleEntry
 import java.util.Optional
 import java.util.function.{Consumer, Supplier, Function => JFunction}
 
@@ -14,6 +15,30 @@ private[javaapi] object Impl {
   val string: ErrorStrategy[String] = strat(ErrorC.Instances.errorString)
   val exception: ErrorStrategy[Exception] = strat(ErrorC.Instances.errorException)
   val throwable: ErrorStrategy[Throwable] = strat(ErrorC.Instances.errorThrowable)
+
+  val classNameAndMessage: ErrorStrategy[String] =
+    strat(ErrorC.Instances.errorClassNameAndMessage)
+
+  val mc: ErrorC[(String, Option[Throwable])] =
+    ErrorC.Instances.errorMessageAndCause
+
+  def msAsJava[A, B](x: (A, Option[B])): SimpleEntry[A, Optional[B]] =
+    new SimpleEntry[A, Optional[B]](x._1, op(x._2))
+
+  def mcAsScala[A, B](x: SimpleEntry[A, Optional[B]]): (A, Option[B]) =
+    (x.getKey, po(x.getValue))
+
+  def mcFromMessage(msg: String): SimpleEntry[String, Optional[Throwable]] =
+    msAsJava(mc.fromMessage(msg))
+
+  def mcGetDefault: SimpleEntry[String, Optional[Throwable]] =
+    msAsJava(mc.getDefault)
+
+  def mcFromThrowable(err: Throwable): SimpleEntry[String, Optional[Throwable]] =
+    msAsJava(mc.fromThrowable(err))
+
+  def mcToThrowable(e: SimpleEntry[String, Optional[Throwable]]): Throwable =
+    mc.toThrowable(mcAsScala(e))
 
   def inst[E](es: ErrorStrategy[E]): ErrorC[E] =
     new ErrorC[E] {
@@ -36,6 +61,10 @@ private[javaapi] object Impl {
       case None => Optional.empty()
       case Some(a) => Optional.of(a)
     }
+
+  def po[A](javaOptional: Optional[A]): Option[A] =
+    if (!javaOptional.isPresent) None
+    else Some(javaOptional.get())
 
   def fold[E, A, X](repr: Either[E, A],
                     wl: JFunction[E, X], wr: JFunction[A, X]): X =

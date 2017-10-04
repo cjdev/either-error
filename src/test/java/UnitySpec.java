@@ -9,10 +9,14 @@ public class UnitySpec {
         if (!p) throw new AssertionError(msg);
     }
 
-    public static void unityIsAccessible() throws Throwable {
+    public static void instanceIsAccessible() {
         Unity unity = Unity.instance;
         assert_("Unity should be accessible.",
                 unity != null);
+    }
+
+    public static void instanceIsFinal() {
+        throw new RuntimeException("Test not implemented");
     }
 
     public static void unityCannotBeConstructed() {

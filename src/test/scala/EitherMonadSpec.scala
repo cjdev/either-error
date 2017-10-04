@@ -12,21 +12,25 @@ class EitherMonadSpec extends FlatSpec with Matchers {
   // `sequence', `successes', and extra instance methods for `Either[*,*]'
   import com.cj.eithererror.EitherMonad._
 
-  // Use whatever type for your errors.
+  // Use whatever type to represent errors.
   case class Err(msg: String, code: Int)
 
-  // Define an implicit Error instance so that `safely', `ensure', and `failure' work.
+  // Define an implicit ErrorC instance
+  // so that `safely', `ensure', and `failure' work.
   import com.cj.eithererror.ErrorC
   implicit val errorErr: ErrorC[Err] = new ErrorC[Err] {
     def fromMessage(msg: String): Err = Err(msg, msg.length)
   }
 
   // Alternatively, you can import (exactly) one of the default instances,
-  // `import Error.Instances.errorString' or
-  // `import Error.Instances.errorException' or
-  // `import Error.Instances.errorThrowable'. Warning: defining (or importing)
-  // more than one implicit Error instance will wreck type inference! In any
-  // given scope, you should only ever have one implicit Error instance visible.
+  // `import ErrorC.Instances.errorString' or
+  // `import ErrorC.Instances.errorException' or
+  // `import ErrorC.Instances.errorThrowable' or
+  // `import ErrorC.Instances.errorMessageAndCause' or
+  // `import ErrorC.Instances.errorClassNameAndMessage'.
+
+  // Warning: defining (or importing) more than one implicit ErrorC instance
+  // will wreck type inference! (But other than that, everything will be okay.)
 
   // Here are some types for our business logic
   class Foo
@@ -58,8 +62,8 @@ class EitherMonadSpec extends FlatSpec with Matchers {
     safely { "5".toInt } shouldBe Right(5)
 
     // example failure
-    safely { "five".toInt } shouldBe Left(ErrorC.fromMessage(
-      "java.lang.NumberFormatException: For input string: \"five\""
+    safely { "five".toInt } shouldBe Left(ErrorC.fromThrowable(
+      new NumberFormatException("For input string: \"five\"")
     ))
 
     // optionally provide a custom message or a throwable
@@ -148,7 +152,7 @@ class EitherMonadSpec extends FlatSpec with Matchers {
     err.get shouldBe 'isEmpty
     err.getError shouldBe 'nonEmpty
     err.getOrElse(fallback) shouldBe fallback
-    an[Exception] should be thrownBy err.getOrThrow
+    a[Throwable] should be thrownBy err.getOrThrow
 
     // and
     foo.get shouldBe 'nonEmpty
@@ -274,8 +278,8 @@ class EitherMonadSpec extends FlatSpec with Matchers {
     // then
     safeFunction2("12") shouldBe Right(12)
 
-    safeFunction2("twelve") shouldBe Left(ErrorC.fromMessage(
-      "java.lang.NumberFormatException: For input string: \"twelve\""
+    safeFunction2("twelve") shouldBe Left(ErrorC.fromThrowable(
+      new NumberFormatException("For input string: \"twelve\"")
     ))
   }
 
@@ -286,8 +290,8 @@ class EitherMonadSpec extends FlatSpec with Matchers {
     // then
     safeFunction3("12") shouldBe Right(12)
 
-    safeFunction3("twelve") shouldBe Left(ErrorC.fromMessage(
-      "java.lang.NumberFormatException: For input string: \"twelve\""
+    safeFunction3("twelve") shouldBe Left(ErrorC.fromThrowable(
+      new NumberFormatException("For input string: \"twelve\"")
     ))
   }
 
@@ -349,8 +353,8 @@ class EitherMonadSpec extends FlatSpec with Matchers {
     // then
     atmTxn("12", 100) shouldBe Right(88)
 
-    atmTxn("twelve", 100) shouldBe Left(ErrorC.fromMessage(
-      "java.lang.NumberFormatException: For input string: \"twelve\""
+    atmTxn("twelve", 100) shouldBe Left(ErrorC.fromThrowable(
+      new NumberFormatException("For input string: \"twelve\"")
     ))
 
     atmTxn("12", 10) shouldBe Left(ErrorC.fromMessage("Insufficient Funds!"))
@@ -477,8 +481,8 @@ class EitherMonadSpec extends FlatSpec with Matchers {
     // then
     readAndAdd(`10`, `12`) shouldBe Right(22)
 
-    readAndAdd(`10`, twelve) shouldBe Left(ErrorC.fromMessage(
-      "java.lang.NumberFormatException: For input string: \"twelve\""
+    readAndAdd(`10`, twelve) shouldBe Left(ErrorC.fromThrowable(
+      new NumberFormatException("For input string: \"twelve\"")
     ))
   }
 
@@ -495,8 +499,8 @@ class EitherMonadSpec extends FlatSpec with Matchers {
     // then
     readAndAdd(`10`, `12`) shouldBe Right(22)
 
-    readAndAdd(`10`, twelve) shouldBe Left(ErrorC.fromMessage(
-      "java.lang.NumberFormatException: For input string: \"twelve\""
+    readAndAdd(`10`, twelve) shouldBe Left(ErrorC.fromThrowable(
+      new NumberFormatException("For input string: \"twelve\"")
     ))
   }
 
@@ -517,8 +521,8 @@ class EitherMonadSpec extends FlatSpec with Matchers {
     } yield quot
 
     // then
-    result shouldBe Left(ErrorC.fromMessage(
-      "java.lang.NumberFormatException: For input string: \"twelve\""
+    result shouldBe Left(ErrorC.fromThrowable(
+      new NumberFormatException("For input string: \"twelve\"")
     ))
   }
 
@@ -570,8 +574,8 @@ class EitherMonadSpec extends FlatSpec with Matchers {
       traverse(ints)(readInt) shouldBe Right(List(1, 2, 3))
     }
     withClue("Succeeds only if each application succeeds: ") {
-      traverse(ints :+ "twelve")(readInt) shouldBe Left(ErrorC.fromMessage(
-        "java.lang.NumberFormatException: For input string: \"twelve\""
+      traverse(ints :+ "twelve")(readInt) shouldBe Left(ErrorC.fromThrowable(
+        new NumberFormatException("For input string: \"twelve\"")
       ))
     }
   }

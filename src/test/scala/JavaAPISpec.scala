@@ -7,7 +7,8 @@ class JavaAPISpec extends FlatSpec with Matchers {
 
   "Unity" should "implement its spec" in {
     import UnitySpec._
-    unityIsAccessible()
+    instanceIsAccessible()
+    instanceIsFinal()
     unityCannotBeConstructed()
     unityIsEqualToItself()
     unityEqualityIsNotUniversallyTrue()
@@ -24,8 +25,15 @@ class JavaAPISpec extends FlatSpec with Matchers {
   "ErrorStrategies" should "implement its spec" in {
     import ErrorStrategiesSpec._
     stringShouldBeVisible()
+    stringShouldBeFinal()
     exceptionShouldBeVisible()
+    exceptionShouldBeFinal()
     throwableShouldBeVisible()
+    throwableShouldBeFinal()
+    messageAndCauseShouldBeVisible()
+    messageAndCauseShouldBeFinal()
+    classNameAndMessageShouldBeVisible()
+    classNameAndMessageShouldBeFinal()
   }
 
   "EitherContext" should "implement its spec" in {

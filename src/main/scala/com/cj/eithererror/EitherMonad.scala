@@ -20,29 +20,23 @@ object EitherMonad {
   def ensure[E: ErrorC](p: Boolean): Either[E, Unit] =
     ensurePrimitive(p).left.map(_ => ErrorC.getDefault)
 
-  def failure[E: ErrorC, A](alt: Any): Either[E, A] =
-    Left(coerceAlt(alt))
+  def failure[E: ErrorC, A](alt: Any): Either[E, A] = Left(coerceAlt(alt))
 
-  def failure[E: ErrorC, A]: Either[E, A] =
-    Left(ErrorC.getDefault)
+  def failure[E: ErrorC, A]: Either[E, A] = Left(ErrorC.getDefault)
 
   implicit class EitherMonadInstance[E, A](val self: Either[E, A]) {
 
-    def get: Option[A] =
-      self.fold(_ => None, Option(_))
+    def get: Option[A] = self.fold(_ => None, Option(_))
 
-    def getError: Option[E] =
-      self.fold(Option(_), _ => None)
+    def getError: Option[E] = self.fold(Option(_), _ => None)
 
-    def getOrElse(a: A): A =
-      self.fold(_ => a, identity)
+    def getOrElse(a: A): A = self.fold(_ => a, identity)
 
     @throws[Throwable]("Throws if instance is a Left Either.")
     def getOrThrow(implicit ev: ErrorC[E]): A =
       self.fold(e => throw ErrorC.toThrowable(e), identity)
 
-    def foreach(f: A => Unit): Unit =
-      self.fold(_ => {}, a => f(a))
+    def foreach(f: A => Unit): Unit = self.fold(_ => {}, a => f(a))
 
     def map[B](f: A => B): Either[E, B] =
       self.fold(e => Left(e), a => Right(f(a)))
@@ -59,78 +53,63 @@ object EitherMonad {
     def ap[B](ef: Either[E, A => B]): Either[E, B] =
       for {f <- ef; a <- self} yield f(a)
 
-    def flatten[B](implicit ev: A <:< Either[E, B]): Either[E, B] =
-      flatMap(ev)
+    def flatten[B](implicit ev: A <:< Either[E, B]): Either[E, B] = flatMap(ev)
 
-    def and[B](eb: => Either[E, B]): Either[E, B] =
-      flatMap(_ => eb)
+    def and[B](eb: => Either[E, B]): Either[E, B] = flatMap(_ => eb)
 
-    def or[B >: A](eb: => Either[E, B]): Either[E, B] =
-      recover(_ => eb)
+    def or[B >: A](eb: => Either[E, B]): Either[E, B] = recover(_ => eb)
 
     def recover[B >: A](f: E => Either[E, B]): Either[E, B] =
       self.fold(err => f(err), Right(_))
 
     def mapLeft[F](f: E => F): Either[F, A] =
       self.fold(e => Left(f(e)), Right(_))
+
+    def translate[F: ErrorC](implicit ev: ErrorC[E]): Either[F, A] =
+      safely[F, A] { getOrThrow }
   }
 
-  def safe[E: ErrorC, A, X](f: A => X): A => Either[E, X] =
-    a => safely(f(a))
+  def safe[E: ErrorC, A, X](f: A => X): A => Either[E, X] = a => safely(f(a))
 
   def safe2[E: ErrorC, A, B, X](f: (A, B) => X):
-  (A, B) => Either[E, X] =
-    (a, b) => safely(f(a, b))
+  (A, B) => Either[E, X] = (a, b) => safely(f(a, b))
 
   def safe3[E: ErrorC, A, B, C, X](f: (A, B, C) => X):
-  (A, B, C) => Either[E, X] =
-    (a, b, c) => safely(f(a, b, c))
+  (A, B, C) => Either[E, X] = (a, b, c) => safely(f(a, b, c))
 
   def safe4[E: ErrorC, A, B, C, D, X](f: (A, B, C, D) => X):
-  (A, B, C, D) => Either[E, X] =
-    (a, b, c, d) => safely(f(a, b, c, d))
+  (A, B, C, D) => Either[E, X] = (a, b, c, d) => safely(f(a, b, c, d))
 
-  def lift[E, A, X](f: A => X): Either[E, A] => Either[E, X] =
-    _.map(f)
+  def lift[E, A, X](f: A => X): Either[E, A] => Either[E, X] = _.map(f)
 
   def lift2[E, A, B, X](f: (A, B) => X):
   (Either[E, A], Either[E, B]) => Either[E, X] =
-    (ea, eb) =>
-      for { a <- ea; b <- eb }
-        yield f(a, b)
+    (ea, eb) => for { a <- ea; b <- eb } yield f(a, b)
 
   def lift3[E, A, B, C, X](f: (A, B, C) => X):
   (Either[E, A], Either[E, B], Either[E, C]) => Either[E, X] =
-    (ea, eb, ec) =>
-      for { a <- ea; b <- eb; c <- ec }
-        yield f(a, b, c)
+    (ea, eb, ec) => for { a <- ea; b <- eb; c <- ec } yield f(a, b, c)
 
   def lift4[E, A, B, C, D, X](f: (A, B, C, D) => X):
   (Either[E, A], Either[E, B], Either[E, C], Either[E, D]) => Either[E, X] =
     (ea, eb, ec, ed) =>
-      for { a <- ea; b <- eb; c <- ec; d <- ed }
-        yield f(a, b, c, d)
+      for { a <- ea; b <- eb; c <- ec; d <- ed } yield f(a, b, c, d)
 
   def bind[E, A, X](k: A => Either[E, X]): Either[E, A] => Either[E, X] =
     _.flatMap(k)
 
   def bind2[E, A, B, X](k: (A, B) => Either[E, X]):
-  (Either[E, A], Either[E, B]) => Either[E, X] =
-    (ea, eb) =>
-      for { a <- ea; b <- eb; res <- k(a,b) }
-        yield res
+  (Either[E, A], Either[E, B]) => Either[E, X] = (ea, eb) =>
+    for { a <- ea; b <- eb; res <- k(a,b) } yield res
 
   def bind3[E, A, B, C, X](k: (A, B, C) => Either[E, X]):
-  (Either[E, A], Either[E, B], Either[E, C]) => Either[E, X] =
-    (ea, eb, ec) =>
-      for { a <- ea; b <- eb; c <- ec; res <- k(a, b, c) }
-        yield res
+  (Either[E, A], Either[E, B], Either[E, C]) => Either[E, X] = (ea, eb, ec) =>
+    for { a <- ea; b <- eb; c <- ec; res <- k(a, b, c) } yield res
 
   def bind4[E, A, B, C, D, X](k: (A, B, C, D) => Either[E, X]):
   (Either[E, A], Either[E, B], Either[E, C], Either[E, D]) => Either[E, X] =
     (ea, eb, ec, ed) =>
-      for { a <- ea; b <- eb; c <- ec; d <- ed; res <- k(a, b, c, d) }
-        yield res
+      for { a <- ea; b <- eb; c <- ec; d <- ed; res <- k(a, b, c, d) } yield res
 
   def traverse[E, A, TA, B, TB](ta: TraversableLike[A, TA])
                                (k: A => Either[E, B])
@@ -150,8 +129,7 @@ object EitherMonad {
 
   def sequence[E, A, TEA, TA](tea: TraversableLike[Either[E, A], TEA])
                              (implicit bf: CanBuildFrom[TEA, A, TA]):
-  Either[E, TA] =
-    traverse(tea)(identity)
+  Either[E, TA] = traverse(tea)(identity)
 
   def successes[E, A, TEA, TA](tea: TraversableLike[Either[E, A], TEA])
                               (implicit bf: CanBuildFrom[TEA, A, TA]):
