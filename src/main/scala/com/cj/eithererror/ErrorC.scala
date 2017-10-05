@@ -23,12 +23,12 @@ trait ErrorC[E] extends ClassTag[E] {
 
   def fromMessage(msg: String): E
 
-  def getDefault: E = fromMessage("")
+  def getDefault: E = ErrorC.Defaults.getDefault(fromMessage)
 
   def fromThrowable(err: Throwable): E =
-    fromMessage(Option(err.getMessage).getOrElse(""))
+    ErrorC.Defaults.fromThrowable(fromMessage, err)
 
-  def toThrowable(e: E): Throwable = new Throwable(e.toString)
+  def toThrowable(e: E): Throwable = ErrorC.Defaults.toThrowable(e)
 
   final override def runtimeClass: java.lang.Class[_] = getDefault.getClass
 }
@@ -45,6 +45,17 @@ object ErrorC {
 
   def toThrowable[E: ErrorC](e: E): Throwable =
     implicitly[ErrorC[E]].toThrowable(e)
+
+  protected[eithererror] object Defaults {
+
+    def getDefault[E](fromMessageImpl: String => E): E = fromMessageImpl("")
+
+    def fromThrowable[E](fromMessageImpl: String => E, err: Throwable): E =
+      fromMessageImpl(Option(err.getMessage).getOrElse(""))
+
+    def toThrowable[E](e: E): Throwable =
+      new Throwable(e.toString)
+  }
 
   object Instances {
 

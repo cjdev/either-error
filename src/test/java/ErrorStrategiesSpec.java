@@ -4,6 +4,9 @@
 import com.cj.eithererror.javaapi.ErrorStrategies;
 import com.cj.eithererror.javaapi.ErrorStrategy;
 
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Optional;
+
 public class ErrorStrategiesSpec {
 
     private static void assert_(String msg, boolean p) {
@@ -16,18 +19,10 @@ public class ErrorStrategiesSpec {
                 strategy != null);
     }
 
-    public static void stringShouldBeFinal() {
-        throw new RuntimeException("Test not implemented");
-    }
-
     public static void exceptionShouldBeVisible() {
         ErrorStrategy<Exception> strategy = ErrorStrategies.exception;
         assert_("ErrorStrategies.exception should be visible.",
                 strategy != null);
-    }
-
-    public static void exceptionShouldBeFinal() {
-        throw new RuntimeException("Test not implemented");
     }
 
     public static void throwableShouldBeVisible() {
@@ -36,23 +31,15 @@ public class ErrorStrategiesSpec {
                 strategy != null);
     }
 
-    public static void throwableShouldBeFinal() {
-        throw new RuntimeException("Test not implemented");
-    }
-
     public static void messageAndCauseShouldBeVisible() {
-        throw new RuntimeException("Test not implemented");
-    }
-
-    public static void messageAndCauseShouldBeFinal() {
-        throw new RuntimeException("Test not implemented");
+        ErrorStrategy<SimpleEntry<String, Optional<Throwable>>> strategy = ErrorStrategies.messageAndCause;
+        assert_("ErrorStrategies.messageAndCause should be visible.",
+                strategy != null);
     }
 
     public static void classNameAndMessageShouldBeVisible() {
-        throw new RuntimeException("Test not implemented");
-    }
-
-    public static void classNameAndMessageShouldBeFinal() {
-        throw new RuntimeException("Test not implemented");
+        ErrorStrategy<String> strategy = ErrorStrategies.classNameAndMessage;
+        assert_("ErrorStrategies.classNameAndMessage should be visible.",
+                strategy != null);
     }
 }

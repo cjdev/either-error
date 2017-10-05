@@ -36,7 +36,7 @@ public class ErrorStrategySpec {
         assert_("ErrorStrategy should use default fromMessage.",
                 strategy.fromMessage(msg).equals(msg.length()));
         assert_("ErrorStrategy should use default fromThrowable.",
-                strategy.fromThrowable(err).equals(err.toString().length()));
+                strategy.fromThrowable(err).equals(err.getMessage().length()));
         assert_("ErrorStrategy should use default toThrowable.",
                 strategy.toThrowable(42).toString().contains("42"));
     }

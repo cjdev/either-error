@@ -15,10 +15,6 @@ public class UnitySpec {
                 unity != null);
     }
 
-    public static void instanceIsFinal() {
-        throw new RuntimeException("Test not implemented");
-    }
-
     public static void unityCannotBeConstructed() {
         assert_("Unity should hide its constructor.",
                 Unity.class.getConstructors().length == 0);

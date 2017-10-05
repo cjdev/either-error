@@ -32,6 +32,10 @@ public class EitherContext<E> {
             this.repr = repr;
         }
 
+        public boolean equals(Object other) {
+            return Impl.<E,A>equals(ctx, repr, other);
+        }
+
         public <X> X fold(Function<E, X> withLeft, Function<A, X> withRight) {
             return Impl.<E,A,X>fold(repr, withLeft, withRight);
         }

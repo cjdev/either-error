@@ -8,14 +8,14 @@ public interface ErrorStrategy<E> {
     E fromMessage(String msg);
 
     default E getDefault() {
-        return fromMessage("");
+        return Impl.esGetDefault(this);
     }
 
     default E fromThrowable(Throwable err) {
-        return fromMessage(err.toString());
+        return Impl.esFromThrowable(this, err);
     }
 
     default Throwable toThrowable(E e) {
-        return new Exception(e.toString());
+        return Impl.esToThrowable(e);
     }
 }

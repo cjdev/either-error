@@ -105,6 +105,28 @@ public class EitherContextSpec {
                 foo.getError().get().equals(""));
     }
 
+    public static void equalsShouldHaveValueSemantics() {
+        ErrorStrategy<String> es = ErrorStrategies.string;
+        EitherContext<String> ec = new EitherContext<>(es);
+        EitherContext<String>.Either<Integer> foo = ec.unsafe(12);
+        EitherContext<String>.Either<Integer> bar = ec.unsafe(12);
+        EitherContext<String>.Either<Integer> baz = ec.unsafe(0);
+        EitherContext<String>.Either<Integer> qux = ec.failure();
+        EitherContext<String>.Either<Integer> mos = ec.failure("mos");
+        EitherContext<String>.Either<Integer> rit = ec.failure("mos");
+
+        assert_("Successes with the same value should be equal",
+                foo.equals(bar));
+        assert_("Successes with different values should not be equal",
+                !foo.equals(baz));
+        assert_("Successes should not equal failures",
+                !foo.equals(qux));
+        assert_("Failures with different values should not be equal",
+                !qux.equals(mos));
+        assert_("Failures with the same value should be equal",
+                mos.equals(rit));
+    }
+
     public static void foldShouldDestructureAnEither() {
         ErrorStrategy<String> es = ErrorStrategies.string;
         EitherContext<String> ec = new EitherContext<>(es);

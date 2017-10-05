@@ -590,4 +590,11 @@ class EitherMonadSpec extends FlatSpec with Matchers {
     // then
     successes(ints.map(safe(_.toInt))) shouldBe List(10, 11, 13)
   }
+
+  // You can use `translate' to convert an `Either[E,*]' to an `Either[F,*]'
+  // without needing a mapping function `E => F'.
+
+  "`translate'" should "turn an `Either[E,*]' into an `Either[F,*]'" in {
+    pending
+  }
 }

@@ -12,6 +12,14 @@ private[javaapi] object Impl {
 
   import EitherMonad.EitherMonadInstance
 
+  def esGetDefault[E](es: ErrorStrategy[E]): E =
+    ErrorC.Defaults.getDefault(es.fromMessage)
+
+  def esFromThrowable[E](es: ErrorStrategy[E], err: Throwable): E =
+    ErrorC.Defaults.fromThrowable(es.fromMessage, err)
+
+  def esToThrowable[E](e: E): Throwable = ErrorC.Defaults.toThrowable(e)
+
   val string: ErrorStrategy[String] = strat(ErrorC.Instances.errorString)
   val exception: ErrorStrategy[Exception] = strat(ErrorC.Instances.errorException)
   val throwable: ErrorStrategy[Throwable] = strat(ErrorC.Instances.errorThrowable)
@@ -59,12 +67,17 @@ private[javaapi] object Impl {
   def op[A](scalaOption: Option[A]): Optional[A] =
     scalaOption match {
       case None => Optional.empty()
-      case Some(a) => Optional.of(a)
+      case Some(a) => Optional.ofNullable(a)
     }
 
   def po[A](javaOptional: Optional[A]): Option[A] =
-    if (!javaOptional.isPresent) None
-    else Some(javaOptional.get())
+    if (!javaOptional.isPresent) Option.empty
+    else Option(javaOptional.get())
+
+  def equals[E, A](ctx: EitherContext[E],
+                   repr: Either[E, A], other: Object): Boolean =
+    if (!other.isInstanceOf[ctx.Either[_]]) false
+    else repr == other.asInstanceOf[ctx.Either[_]].repr
 
   def fold[E, A, X](repr: Either[E, A],
                     wl: JFunction[E, X], wr: JFunction[A, X]): X =
