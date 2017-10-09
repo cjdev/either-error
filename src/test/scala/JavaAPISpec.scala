@@ -3,7 +3,7 @@
 
 import org.scalatest.{FlatSpec, Matchers}
 
-class JavaAPISpec extends FlatSpec with Matchers {
+class JavaAPISpec extends FlatSpec {
 
   "Unity" should "implement its spec" in {
     import UnitySpec._
@@ -49,6 +49,7 @@ class JavaAPISpec extends FlatSpec with Matchers {
     getShouldReturnTheValueInAnOptional()
     getErrorShouldReturnTheErrorInAnOptional()
     getOrElseShouldBeUsedToRecoverFromErrors()
+    getOrElseShouldAcceptADeferredAlternative()
     getOrThrowShouldReturnTheNakedValue()
     foreachShouldConsumeTheInnerValue()
     mapShouldMapTheInnerValue()

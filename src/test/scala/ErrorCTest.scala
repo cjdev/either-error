@@ -1,6 +1,7 @@
 // Copyright (c) 2017 CJ Engineering under the terms of the MIT License
 // See LICENSE in project root.
 
+import com.cj.eithererror.ErrorD
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -35,18 +36,18 @@ class ErrorCTest extends FlatSpec with Matchers with PropertyChecks {
     }
   }
 
-  "errorMessageAndCause" should "preserve passing values through Throwable" in {
+  "messageAndCause" should "preserve passing values through Throwable" in {
 
-    import Instances.errorMessageAndCause
+    import Instances.messageAndCause
 
     forAll { (msg: String, errs: Option[Throwable]) =>
       fromThrowable(toThrowable((msg, errs))) shouldBe (msg, errs)
     }
   }
 
-  "errorClassNameAndMessage" should "fail to preserve values through Throwable" in {
+  "classNameAndMessage" should "fail to preserve values through Throwable" in {
 
-    import Instances.errorClassNameAndMessage
+    import Instances.classNameAndMessage
 
     val msg = ""
     fromThrowable(toThrowable(msg)) shouldNot be(msg)

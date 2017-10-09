@@ -159,6 +159,14 @@ public class EitherContextSpec {
                 foo.getOrElse(21).equals(21));
     }
 
+    public static void getOrElseShouldAcceptADeferredAlternative() {
+        ErrorStrategy<String> es = ErrorStrategies.string;
+        EitherContext<String> ec = new EitherContext<>(es);
+        EitherContext<String>.Either<Integer> foo = ec.failure("bar");
+        assert_("getOrElse should accept a deferred alternative",
+                foo.getOrElse(() -> 21).equals(21));
+    }
+
     public static void getOrThrowShouldReturnTheNakedValue() throws Throwable {
         ErrorStrategy<String> es = ErrorStrategies.string;
         EitherContext<String> ec = new EitherContext<>(es);

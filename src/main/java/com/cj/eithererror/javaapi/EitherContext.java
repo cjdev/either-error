@@ -32,8 +32,13 @@ public class EitherContext<E> {
             this.repr = repr;
         }
 
-        public boolean equals(Object other) {
+        @Override public boolean equals(Object other) {
             return Impl.<E,A>equals(ctx, repr, other);
+        }
+
+        // https://www.artima.com/lejava/articles/equality.html
+        @Override public int hashCode() {
+            return repr.hashCode();
         }
 
         public <X> X fold(Function<E, X> withLeft, Function<A, X> withRight) {
@@ -49,7 +54,11 @@ public class EitherContext<E> {
         }
 
         public A getOrElse(A a) {
-            return Impl.<E,A>getOrElse(repr, a);
+            return Impl.<E,A>getOrElse1(repr, a);
+        }
+
+        public A getOrElse(Supplier<A> a) {
+            return Impl.<E,A>getOrElse2(repr, a);
         }
 
         public A getOrThrow() throws Throwable {

@@ -4,10 +4,7 @@
 package com.cj.eithererror
 
 import scala.annotation.StaticAnnotation
-import scala.language.higherKinds
 import scala.reflect.ClassTag
-
-case class IllegalInstance[C[_], A](reason: String = "") extends StaticAnnotation
 
 /**
   * Instances should satisfy the following law:
@@ -35,6 +32,8 @@ trait ErrorC[E] extends ClassTag[E] {
 
 object ErrorC {
 
+  case class IllegalInstance[A](reason: String = "") extends StaticAnnotation
+
   def getDefault[E: ErrorC]: E = implicitly[ErrorC[E]].getDefault
 
   def fromMessage[E: ErrorC](msg: String): E =
@@ -53,8 +52,7 @@ object ErrorC {
     def fromThrowable[E](fromMessageImpl: String => E, err: Throwable): E =
       fromMessageImpl(Option(err.getMessage).getOrElse(""))
 
-    def toThrowable[E](e: E): Throwable =
-      new Throwable(e.toString)
+    def toThrowable[E](e: E): Throwable = new Throwable(e.toString)
   }
 
   object Instances {
@@ -80,7 +78,13 @@ object ErrorC {
         err match { case e: Exception => e; case _ => throw err }
     }
 
-    implicit lazy val errorMessageAndCause: ErrorC[(String, Option[Throwable])] =
+    @ErrorC.IllegalInstance[String]("Breaks round trips through Throwable.")
+    implicit lazy val classNameAndMessage: ErrorC[String] = new ErrorC[String] {
+      def fromMessage(msg: String): String = msg
+      override def fromThrowable(err: Throwable): String = fromMessage(err.toString)
+    }
+
+    implicit lazy val messageAndCause: ErrorC[(String, Option[Throwable])] =
       new ErrorC[(String, Option[Throwable])] {
 
         def fromMessage(msg: String): (String, Option[Throwable]) = (msg, None)
@@ -94,11 +98,5 @@ object ErrorC {
             case None => new Throwable(e._1)
           }
       }
-
-    @IllegalInstance[ErrorC, String]("Breaks round trips through Throwable.")
-    implicit lazy val errorClassNameAndMessage: ErrorC[String] = new ErrorC[String] {
-      def fromMessage(msg: String): String = msg
-      override def fromThrowable(err: Throwable): String = fromMessage(err.toString)
-    }
   }
 }

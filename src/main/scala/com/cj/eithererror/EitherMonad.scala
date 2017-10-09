@@ -9,20 +9,20 @@ import scala.collection.{TraversableLike, mutable}
 object EitherMonad {
 
   def safely[E: ErrorC, A](a: => A, alt: => Any): Either[E, A] =
-    safelyPrimitive(a).left.map(_ => coerceAlt(alt))
+    safelyPrimitive(a).left.map(_ => coerce(alt))
 
   def safely[E: ErrorC, A](a: => A): Either[E, A] =
-    safelyPrimitive(a).left.map(e => ErrorC.fromThrowable(e))
+    safelyPrimitive(a).left.map(err => coerce(err))
 
   def ensure[E: ErrorC](p: Boolean, alt: => Any): Either[E, Unit] =
-    ensurePrimitive(p).left.map(_ => coerceAlt(alt))
+    ensurePrimitive(p).left.map(_ => coerce(alt))
 
   def ensure[E: ErrorC](p: Boolean): Either[E, Unit] =
-    ensurePrimitive(p).left.map(_ => ErrorC.getDefault)
+    ensurePrimitive(p).left.map(_ => coerce(null))
 
-  def failure[E: ErrorC, A](alt: Any): Either[E, A] = Left(coerceAlt(alt))
+  def failure[E: ErrorC, A](alt: Any): Either[E, A] = Left(coerce(alt))
 
-  def failure[E: ErrorC, A]: Either[E, A] = Left(ErrorC.getDefault)
+  def failure[E: ErrorC, A]: Either[E, A] = Left(coerce(null))
 
   implicit class EitherMonadInstance[E, A](val self: Either[E, A]) {
 
@@ -30,7 +30,7 @@ object EitherMonad {
 
     def getError: Option[E] = self.fold(Option(_), _ => None)
 
-    def getOrElse(a: A): A = self.fold(_ => a, identity)
+    def getOrElse(a: => A): A = self.fold(_ => a, identity)
 
     @throws[Throwable]("Throws if instance is a Left Either.")
     def getOrThrow(implicit ev: ErrorC[E]): A =
@@ -159,8 +159,9 @@ object EitherMonad {
   private def ensurePrimitive[A](p: Boolean): Either[Unit, Unit] =
     if (p) Right(()) else Left(())
 
-  private def coerceAlt[E: ErrorC](alt: Any): E =
+  private def coerce[E: ErrorC](alt: Any): E =
     alt match {
+      case null => ErrorC.getDefault
       case e: E => e
       case msg: String => ErrorC.fromMessage(msg)
       case err: Throwable => ErrorC.fromThrowable(err)

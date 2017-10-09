@@ -25,10 +25,10 @@ private[javaapi] object Impl {
   val throwable: ErrorStrategy[Throwable] = strat(ErrorC.Instances.errorThrowable)
 
   val classNameAndMessage: ErrorStrategy[String] =
-    strat(ErrorC.Instances.errorClassNameAndMessage)
+    strat(ErrorC.Instances.classNameAndMessage)
 
   val mc: ErrorC[(String, Option[Throwable])] =
-    ErrorC.Instances.errorMessageAndCause
+    ErrorC.Instances.messageAndCause
 
   def msAsJava[A, B](x: (A, Option[B])): SimpleEntry[A, Optional[B]] =
     new SimpleEntry[A, Optional[B]](x._1, op(x._2))
@@ -87,7 +87,10 @@ private[javaapi] object Impl {
 
   def getError[E, A](repr: Either[E, A]): Optional[E] = op(repr.getError)
 
-  def getOrElse[E, A](repr: Either[E, A], a: A): A = repr.getOrElse(a)
+  def getOrElse1[E, A](repr: Either[E, A], a: A): A = repr.getOrElse(a)
+
+  def getOrElse2[E, A](repr: Either[E, A], a: Supplier[A]): A =
+    repr.getOrElse(a.get)
 
   def getOrThrow[E, A](ev: ErrorC[E], repr: Either[E, A]): A =
     repr.getOrThrow(ev)
