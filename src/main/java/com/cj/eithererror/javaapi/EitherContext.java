@@ -20,7 +20,7 @@ public class EitherContext<E> {
 
     public EitherContext(ErrorStrategy<E> strategy) {
         this.strategy = strategy;
-        this.ev = Impl.inst(strategy);
+        this.ev = Impl.toErrorC(strategy);
         this.ctx = this;
     }
 

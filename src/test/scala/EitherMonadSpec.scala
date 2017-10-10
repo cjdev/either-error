@@ -1,9 +1,10 @@
 // Copyright (c) 2017 CJ Engineering under the terms of the MIT License
 // See LICENSE in project root.
 
+import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FlatSpec, Matchers}
 
-class EitherMonadSpec extends FlatSpec with Matchers {
+class EitherMonadSpec extends FlatSpec with Matchers with PropertyChecks {
 
   // The EitherMonad interface provides automatic marshalling/unmarshalling
   // combinators for functions and values that have the possibility of failure.
@@ -26,8 +27,8 @@ class EitherMonadSpec extends FlatSpec with Matchers {
   // `import ErrorC.Instances.errorString' or
   // `import ErrorC.Instances.errorException' or
   // `import ErrorC.Instances.errorThrowable' or
-  // `import ErrorC.Instances.errorMessageAndCause' or
-  // `import ErrorC.Instances.errorClassNameAndMessage'.
+  // `import ErrorC.Instances.messageAndCause' or
+  // `import ErrorC.Instances.classNameAndMessage'.
 
   // Warning: defining (or importing) more than one implicit ErrorC instance
   // will wreck type inference! (But other than that, everything will be okay.)
@@ -591,10 +592,34 @@ class EitherMonadSpec extends FlatSpec with Matchers {
     successes(ints.map(safe(_.toInt))) shouldBe List(10, 11, 13)
   }
 
-  // You can use `translate' to convert an `Either[E,*]' to an `Either[F,*]'
-  // without needing a mapping function `E => F'.
+  "`mapLeft'" should "turn an `Either[E,*]' into an `Either[F,*]' when you " +
+  "provide a mapping function E => F" in {
+    withClue("Successes should not be changed: ") {
+      safely("foo").mapLeft((e: Err) => e.toString) shouldBe Right("foo")
+    }
+    withClue("Failures should get mapped: ") {
+      val err: Err = Err("bar", 13)
+      failure(err).mapLeft(_.toString) shouldBe Left(err.toString)
+    }
+  }
 
-  "`translate'" should "turn an `Either[E,*]' into an `Either[F,*]'" in {
-    pending
+  "`translate'" should "turn an `Either[E,*]' into an `Either[F,*]' without " +
+  "you needing to provide a mapping function E => F" in {
+    // given
+    implicit val errorInt: ErrorC[Int] = new ErrorC[Int] {
+      def fromMessage(msg: String): Int = msg.length
+    }
+    implicit val errorChar: ErrorC[Char] = new ErrorC[Char] {
+      def fromMessage(msg: String): Char = msg.headOption.getOrElse('\0')
+    }
+
+    // then
+    withClue("Successes should not be changed: ") {
+      safely[Int, String]("foo").translate[Char] shouldBe Right("foo")
+    }
+    withClue("Failures should be recast: ") {
+      failure[Int, String](1).translate[Char] shouldBe
+        Left(ErrorC.fromThrowable[Char](ErrorC.toThrowable[Int](1)))
+    }
   }
 }

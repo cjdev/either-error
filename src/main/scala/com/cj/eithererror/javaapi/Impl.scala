@@ -20,35 +20,7 @@ private[javaapi] object Impl {
 
   def esToThrowable[E](e: E): Throwable = ErrorC.Defaults.toThrowable(e)
 
-  val string: ErrorStrategy[String] = strat(ErrorC.Instances.errorString)
-  val exception: ErrorStrategy[Exception] = strat(ErrorC.Instances.errorException)
-  val throwable: ErrorStrategy[Throwable] = strat(ErrorC.Instances.errorThrowable)
-
-  val classNameAndMessage: ErrorStrategy[String] =
-    strat(ErrorC.Instances.classNameAndMessage)
-
-  val mc: ErrorC[(String, Option[Throwable])] =
-    ErrorC.Instances.messageAndCause
-
-  def msAsJava[A, B](x: (A, Option[B])): SimpleEntry[A, Optional[B]] =
-    new SimpleEntry[A, Optional[B]](x._1, op(x._2))
-
-  def mcAsScala[A, B](x: SimpleEntry[A, Optional[B]]): (A, Option[B]) =
-    (x.getKey, po(x.getValue))
-
-  def mcFromMessage(msg: String): SimpleEntry[String, Optional[Throwable]] =
-    msAsJava(mc.fromMessage(msg))
-
-  def mcGetDefault: SimpleEntry[String, Optional[Throwable]] =
-    msAsJava(mc.getDefault)
-
-  def mcFromThrowable(err: Throwable): SimpleEntry[String, Optional[Throwable]] =
-    msAsJava(mc.fromThrowable(err))
-
-  def mcToThrowable(e: SimpleEntry[String, Optional[Throwable]]): Throwable =
-    mc.toThrowable(mcAsScala(e))
-
-  def inst[E](es: ErrorStrategy[E]): ErrorC[E] =
+  def toErrorC[E](es: ErrorStrategy[E]): ErrorC[E] =
     new ErrorC[E] {
       def fromMessage(msg: String): E = es.fromMessage(msg)
       override def getDefault: E = es.getDefault
@@ -56,21 +28,43 @@ private[javaapi] object Impl {
       override def toThrowable(e: E): Throwable = es.toThrowable(e)
     }
 
-  def strat[E](ec: ErrorC[E]): ErrorStrategy[E] =
-    new ErrorStrategy[E] {
-      def getDefault: E = ec.getDefault
-      def fromThrowable(err: Throwable): E = ec.fromThrowable(err)
-      def toThrowable(e: E): Throwable = ec.toThrowable(e)
-      def fromMessage(msg: String): E = ec.fromMessage(msg)
+  def toErrorStrategy[S, J](ec: ErrorC[S], f: S => J, g: J => S):
+  ErrorStrategy[J] =
+    new ErrorStrategy[J] {
+      def getDefault: J = f(ec.getDefault)
+      def fromThrowable(err: Throwable): J = f(ec.fromThrowable(err))
+      def toThrowable(e: J): Throwable = ec.toThrowable(g(e))
+      def fromMessage(msg: String): J = f(ec.fromMessage(msg))
     }
 
-  def op[A](scalaOption: Option[A]): Optional[A] =
+  def toErrorStrategyId[E](ec: ErrorC[E]): ErrorStrategy[E] =
+    toErrorStrategy(ec, identity[E], identity[E])
+
+  val string: ErrorStrategy[String] =
+    toErrorStrategyId(ErrorC.Instances.errorString)
+
+  val exception: ErrorStrategy[Exception] =
+    toErrorStrategyId(ErrorC.Instances.errorException)
+
+  val throwable: ErrorStrategy[Throwable] =
+    toErrorStrategyId(ErrorC.Instances.errorThrowable)
+
+  val classNameAndMessage: ErrorStrategy[String] =
+    toErrorStrategyId(ErrorC.Instances.classNameAndMessage)
+
+  val messageAndCause: ErrorStrategy[SimpleEntry[String, Optional[Throwable]]] =
+    toErrorStrategy(ErrorC.Instances.messageAndCause,
+      (x: (String, Option[Throwable])) => new SimpleEntry(x._1, toOptional(x._2)),
+      (x: SimpleEntry[String, Optional[Throwable]]) => (x.getKey, toOption(x.getValue))
+    )
+
+  def toOptional[A](scalaOption: Option[A]): Optional[A] =
     scalaOption match {
       case None => Optional.empty()
       case Some(a) => Optional.ofNullable(a)
     }
 
-  def po[A](javaOptional: Optional[A]): Option[A] =
+  def toOption[A](javaOptional: Optional[A]): Option[A] =
     if (!javaOptional.isPresent) Option.empty
     else Option(javaOptional.get())
 
@@ -83,9 +77,9 @@ private[javaapi] object Impl {
                     wl: JFunction[E, X], wr: JFunction[A, X]): X =
     repr.fold(e => wl.apply(e), a => wr.apply(a))
 
-  def get[E, A](repr: Either[E, A]): Optional[A] = op(repr.get)
+  def get[E, A](repr: Either[E, A]): Optional[A] = toOptional(repr.get)
 
-  def getError[E, A](repr: Either[E, A]): Optional[E] = op(repr.getError)
+  def getError[E, A](repr: Either[E, A]): Optional[E] = toOptional(repr.getError)
 
   def getOrElse1[E, A](repr: Either[E, A], a: A): A = repr.getOrElse(a)
 

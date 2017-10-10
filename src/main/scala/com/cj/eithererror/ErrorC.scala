@@ -11,11 +11,13 @@ import scala.reflect.ClassTag
   *
   *     forAll { (e: E) => assert { fromThrowable(toThrowable(e)) == e } }
   *
-  * This ensures that a round trip through
-  * [[EitherMonad.EitherMonadInstance.translate]] is the identity.
+  * Instances that do not satisfy the above law should be annotated with
+  * [[ErrorC.IllegalInstance[E]].
   *
   * @tparam E An arbitrary type that is to be used to describe errors.
   */
+// TODO: I think parallel transport will require the stronger
+// TODO: notion that E be isomorphic to a subset of Throwable.
 trait ErrorC[E] extends ClassTag[E] {
 
   def fromMessage(msg: String): E
@@ -32,7 +34,7 @@ trait ErrorC[E] extends ClassTag[E] {
 
 object ErrorC {
 
-  case class IllegalInstance[A](reason: String = "") extends StaticAnnotation
+  case class IllegalInstance[A](note: String = "") extends StaticAnnotation
 
   def getDefault[E: ErrorC]: E = implicitly[ErrorC[E]].getDefault
 

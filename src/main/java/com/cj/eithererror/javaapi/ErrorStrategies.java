@@ -23,28 +23,6 @@ public final class ErrorStrategies {
         exception = Impl.exception();
         throwable = Impl.throwable();
         classNameAndMessage = Impl.classNameAndMessage();
-
-        messageAndCause = new ErrorStrategy<SimpleEntry<String, Optional<Throwable>>>() {
-
-            @Override
-            public SimpleEntry<String, Optional<Throwable>> fromMessage(String msg) {
-                return Impl.mcFromMessage(msg);
-            }
-
-            @Override
-            public SimpleEntry<String, Optional<Throwable>> getDefault() {
-                return Impl.mcGetDefault();
-            }
-
-            @Override
-            public SimpleEntry<String, Optional<Throwable>> fromThrowable(Throwable err) {
-                return Impl.mcFromThrowable(err);
-            }
-
-            @Override
-            public Throwable toThrowable(SimpleEntry<String, Optional<Throwable>> e) {
-                return Impl.mcToThrowable(e);
-            }
-        };
+        messageAndCause = (ErrorStrategy<SimpleEntry<String,Optional<Throwable>>>) (ErrorStrategy<?>) Impl.messageAndCause();
     }
 }
