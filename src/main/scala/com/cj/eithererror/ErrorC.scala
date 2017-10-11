@@ -16,8 +16,6 @@ import scala.reflect.ClassTag
   *
   * @tparam E An arbitrary type that is to be used to describe errors.
   */
-// TODO: I think parallel transport will require the stronger
-// TODO: notion that E be isomorphic to a subset of Throwable.
 trait ErrorC[E] extends ClassTag[E] {
 
   def fromMessage(msg: String): E
@@ -46,16 +44,6 @@ object ErrorC {
 
   def toThrowable[E: ErrorC](e: E): Throwable =
     implicitly[ErrorC[E]].toThrowable(e)
-
-  protected[eithererror] object Defaults {
-
-    def getDefault[E](fromMessageImpl: String => E): E = fromMessageImpl("")
-
-    def fromThrowable[E](fromMessageImpl: String => E, err: Throwable): E =
-      fromMessageImpl(Option(err.getMessage).getOrElse(""))
-
-    def toThrowable[E](e: E): Throwable = new Throwable(e.toString)
-  }
 
   object Instances {
 
@@ -100,5 +88,19 @@ object ErrorC {
             case None => new Throwable(e._1)
           }
       }
+  }
+
+  private[eithererror] object Defaults {
+
+    def getDefault[E](fromMessageImpl: String => E): E =
+      fromMessageImpl("")
+
+    def fromThrowable[E](fromMessageImpl: String => E, err: Throwable): E =
+      fromMessageImpl(Option(err.getMessage).getOrElse(""))
+
+    def toThrowable[E](e: E): Throwable = new Throwable(e.toString)
+
+    def asScala[A, B](f: java.util.function.Function[A, B]): A => B =
+      (a: A) => f.apply(a)
   }
 }

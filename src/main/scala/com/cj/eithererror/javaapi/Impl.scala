@@ -4,59 +4,12 @@
 package com.cj.eithererror
 package javaapi
 
-import java.util.AbstractMap.SimpleEntry
 import java.util.Optional
 import java.util.function.{Consumer, Supplier, Function => JFunction}
 
 private[javaapi] object Impl {
 
   import EitherMonad.EitherMonadInstance
-
-  def esGetDefault[E](es: ErrorStrategy[E]): E =
-    ErrorC.Defaults.getDefault(es.fromMessage)
-
-  def esFromThrowable[E](es: ErrorStrategy[E], err: Throwable): E =
-    ErrorC.Defaults.fromThrowable(es.fromMessage, err)
-
-  def esToThrowable[E](e: E): Throwable = ErrorC.Defaults.toThrowable(e)
-
-  def toErrorC[E](es: ErrorStrategy[E]): ErrorC[E] =
-    new ErrorC[E] {
-      def fromMessage(msg: String): E = es.fromMessage(msg)
-      override def getDefault: E = es.getDefault
-      override def fromThrowable(err: Throwable): E = es.fromThrowable(err)
-      override def toThrowable(e: E): Throwable = es.toThrowable(e)
-    }
-
-  def toErrorStrategy[S, J](ec: ErrorC[S], f: S => J, g: J => S):
-  ErrorStrategy[J] =
-    new ErrorStrategy[J] {
-      def getDefault: J = f(ec.getDefault)
-      def fromThrowable(err: Throwable): J = f(ec.fromThrowable(err))
-      def toThrowable(e: J): Throwable = ec.toThrowable(g(e))
-      def fromMessage(msg: String): J = f(ec.fromMessage(msg))
-    }
-
-  def toErrorStrategyId[E](ec: ErrorC[E]): ErrorStrategy[E] =
-    toErrorStrategy(ec, identity[E], identity[E])
-
-  val string: ErrorStrategy[String] =
-    toErrorStrategyId(ErrorC.Instances.errorString)
-
-  val exception: ErrorStrategy[Exception] =
-    toErrorStrategyId(ErrorC.Instances.errorException)
-
-  val throwable: ErrorStrategy[Throwable] =
-    toErrorStrategyId(ErrorC.Instances.errorThrowable)
-
-  val classNameAndMessage: ErrorStrategy[String] =
-    toErrorStrategyId(ErrorC.Instances.classNameAndMessage)
-
-  val messageAndCause: ErrorStrategy[SimpleEntry[String, Optional[Throwable]]] =
-    toErrorStrategy(ErrorC.Instances.messageAndCause,
-      (x: (String, Option[Throwable])) => new SimpleEntry(x._1, toOptional(x._2)),
-      (x: SimpleEntry[String, Optional[Throwable]]) => (x.getKey, toOption(x.getValue))
-    )
 
   def toOptional[A](scalaOption: Option[A]): Optional[A] =
     scalaOption match {
@@ -67,6 +20,14 @@ private[javaapi] object Impl {
   def toOption[A](javaOptional: Optional[A]): Option[A] =
     if (!javaOptional.isPresent) Option.empty
     else Option(javaOptional.get())
+
+  def toErrorC[E](es: ErrorStrategy[E]): ErrorC[E] =
+    new ErrorC[E] {
+      def fromMessage(msg: String): E = es.fromMessage(msg)
+      override def getDefault: E = es.getDefault
+      override def fromThrowable(err: Throwable): E = es.fromThrowable(err)
+      override def toThrowable(e: E): Throwable = es.toThrowable(e)
+    }
 
   def equals[E, A](ctx: EitherContext[E],
                    repr: Either[E, A], other: Object): Boolean =
