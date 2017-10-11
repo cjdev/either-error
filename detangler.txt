@@ -1,0 +1,22 @@
+{
+  reportDir target/detangled
+  searchPaths
+  [
+    target/either-error_2.11-1.1.0-SNAPSHOT.jar
+  ]
+  level 2
+  startsWith
+  {
+    include
+    [
+      [ com cj eithererror ]
+    ]
+    exclude []
+    drop
+    [
+      [ com cj eithererror ]
+    ]
+  }
+  ignoreFiles []
+  canFailBuild true
+}
