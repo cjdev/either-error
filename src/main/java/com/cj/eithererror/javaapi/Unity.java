@@ -19,6 +19,10 @@ public final class Unity implements Serializable {
         return other instanceof Unity;
     }
 
+    public int hashCode() {
+        return 0;
+    }
+
     public String toString() {
         return "()";
     }
