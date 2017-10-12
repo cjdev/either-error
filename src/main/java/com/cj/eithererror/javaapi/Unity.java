@@ -15,11 +15,11 @@ public final class Unity implements Serializable {
 
     private Unity() {}
 
-    public boolean equals(Object other) {
+    @Override public boolean equals(Object other) {
         return other instanceof Unity;
     }
 
-    public int hashCode() {
+    @Override public int hashCode() {
         return 0;
     }
 

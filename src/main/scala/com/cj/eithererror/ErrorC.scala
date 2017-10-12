@@ -20,12 +20,12 @@ trait ErrorC[E] extends ClassTag[E] {
 
   def fromMessage(msg: String): E
 
-  def getDefault: E = ErrorC.Defaults.getDefault(fromMessage)
+  def getDefault: E = ErrorC.defaultGetDefault(fromMessage)
 
   def fromThrowable(err: Throwable): E =
-    ErrorC.Defaults.fromThrowable(fromMessage, err)
+    ErrorC.defaultFromThrowable(fromMessage, err)
 
-  def toThrowable(e: E): Throwable = ErrorC.Defaults.toThrowable(e)
+  def toThrowable(e: E): Throwable = ErrorC.defaultToThrowable(e)
 
   final override def runtimeClass: java.lang.Class[_] = getDefault.getClass
 }
@@ -90,17 +90,19 @@ object ErrorC {
       }
   }
 
-  private[eithererror] object Defaults {
+  private[eithererror]
+  def defaultGetDefault[E](fromMessageImpl: String => E): E =
+    fromMessageImpl("")
 
-    def getDefault[E](fromMessageImpl: String => E): E =
-      fromMessageImpl("")
+  private[eithererror]
+  def defaultFromThrowable[E](fromMessageImpl: String => E, err: Throwable): E =
+    fromMessageImpl(Option(err.getMessage).getOrElse(""))
 
-    def fromThrowable[E](fromMessageImpl: String => E, err: Throwable): E =
-      fromMessageImpl(Option(err.getMessage).getOrElse(""))
+  private[eithererror]
+  def defaultToThrowable[E](e: E): Throwable =
+    new Throwable(e.toString)
 
-    def toThrowable[E](e: E): Throwable = new Throwable(e.toString)
-
-    def asScala[A, B](f: java.util.function.Function[A, B]): A => B =
-      (a: A) => f.apply(a)
-  }
+  private[eithererror]
+  def asScala[A, B](f: java.util.function.Function[A, B]): A => B =
+    (a: A) => f.apply(a)
 }
