@@ -39,34 +39,31 @@ In your 'pom.xml':
 In your scala source file:
 
 ```scala
-import com.cj.eithererror.{ErrorC, EitherMonad => EM}
-import EM.EitherMonadInstance // decorates Either values with additional methods
+import com.cj.eithererror._, EitherMonad._
 
-// and import or create exactly one `ErrorC` instance for your chosen error type
-import ErrorC.Instances.errorString
-// or
-import ErrorC.Instances.errorThrowable
+// import or create exactly one `ErrorC` instance for your chosen error type
+import ErrorC.Instances.messageAndCause
 // or
 class Foo
 implicit val errorFoo: ErrorC[Foo] = new ErrorC[Foo] {
   def fromMessage(msg: String): Foo = ...
 }
 
-// The entry points are `EM.safely`, `EM.ensure`, and `EM.failure`.
+// The entry points are `safely`, `ensure`, and `failure`.
 
 val err = new Exception("err")
-EM.safely(throw err) // returns Left(ErrorC.fromThrowable(err))
+safely(throw err) // returns Left(ErrorC.fromThrowable(err))
 
 val msg = "The condition wasn't true"
-EM.ensure(1 < 0, msg) // returns Left(ErrorC.fromMessage(msg))
+ensure(1 < 0, msg) // returns Left(ErrorC.fromMessage(msg))
 
-EM.failure // returns Left(ErrorC.getDefault)
+failure // returns Left(ErrorC.getDefault)
 
 // Chain computations together with short-circuit logic
 def `launch the missiles`: Unit = ...
-EM.safely("12".toInt)                     // returns Right(12)
-  .flatMap((n: Int) => EM.ensure(n > 15)) // returns Left(ErrorC.getDefault)
-  .and(Right(`launch the missiles`))      // doesn't launch the missiles
+safely("12".toInt)                     // returns Right(12)
+  .flatMap((n: Int) => ensure(n > 15)) // returns Left(ErrorC.getDefault)
+  .and(Right(`launch the missiles`))   // doesn't launch the missiles
 ```
 
 ## Documentation
