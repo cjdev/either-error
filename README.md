@@ -32,7 +32,7 @@ In your 'pom.xml':
 <dependency>
     <groupId>com.cj</groupId>
     <artifactId>either-error_2.11</artifactId>
-    <version>1.0.1</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
@@ -40,22 +40,35 @@ In your scala source file:
 
 ```scala
 import com.cj.eithererror.{ErrorC, EitherMonad => EM}
-import EM.EitherMonadInstance
+import EM.EitherMonadInstance // decorates Either values with additional methods
 
-// and import or create exactly one `Error` instance for your chosen error type
+// and import or create exactly one `ErrorC` instance for your chosen error type
 import ErrorC.Instances.errorString
 // or
 import ErrorC.Instances.errorThrowable
 // or
-type Foo
+class Foo
 implicit val errorFoo: ErrorC[Foo] = new ErrorC[Foo] {
   def fromMessage(msg: String): Foo = ...
 }
-```
 
-The entry points are `EM.safely`, `EM.ensure`, and `EM.failure`.
+// The entry points are `EM.safely`, `EM.ensure`, and `EM.failure`.
+
+val err = new Exception("err")
+EM.safely(throw err) // returns Left(ErrorC.fromThrowable(err))
+
+val msg = "The condition wasn't true"
+EM.ensure(1 < 0, msg) // returns Left(ErrorC.fromMessage(msg))
+
+EM.failure // returns Left(ErrorC.getDefault)
+
+// Chain computations together with short-circuit logic
+def `launch the missiles`: Unit = ...
+EM.safely("12".toInt)                     // returns Right(12)
+  .flatMap((n: Int) => EM.ensure(n > 15)) // returns Left(ErrorC.getDefault)
+  .and(Right(`launch the missiles`))      // doesn't launch the missiles
+```
 
 ## Documentation
 
-See documenting comments and tests in
-'test/scala/EitherMonadSpec.scala'.
+See documenting comments and tests in 'test/scala/EitherMonadSpec.scala'.
