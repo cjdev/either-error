@@ -3,19 +3,8 @@
 
 package com.cj.eithererror
 
-import scala.annotation.StaticAnnotation
 import scala.reflect.ClassTag
 
-/**
-  * Instances should satisfy the following law:
-  *
-  *     forAll { (e: E) => assert { fromThrowable(toThrowable(e)) == e } }
-  *
-  * Instances that do not satisfy the above law should be annotated with
-  * [[ErrorC.IllegalInstance[E]].
-  *
-  * @tparam E An arbitrary type that is to be used to describe errors.
-  */
 trait ErrorC[E] extends ClassTag[E] {
 
   def fromMessage(msg: String): E
@@ -31,8 +20,6 @@ trait ErrorC[E] extends ClassTag[E] {
 }
 
 object ErrorC {
-
-  case class IllegalInstance[A](note: String = "") extends StaticAnnotation
 
   def getDefault[E: ErrorC]: E = implicitly[ErrorC[E]].getDefault
 
@@ -68,7 +55,6 @@ object ErrorC {
         err match { case e: Exception => e; case _ => throw err }
     }
 
-    @ErrorC.IllegalInstance[String]("Breaks round trips through Throwable.")
     implicit lazy val classNameAndMessage: ErrorC[String] = new ErrorC[String] {
       def fromMessage(msg: String): String = msg
       override def fromThrowable(err: Throwable): String = fromMessage(err.toString)
