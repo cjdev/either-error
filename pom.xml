@@ -20,6 +20,7 @@
         <maven-compiler-plugin_version>3.7.0</maven-compiler-plugin_version>
         <scala-maven-plugin_version>3.3.1</scala-maven-plugin_version>
         <scalatest-maven-plugin_version>1.0</scalatest-maven-plugin_version>
+        <detangler-maven-plugin_version>0.9.1</detangler-maven-plugin_version>
     </properties>
 
 
@@ -41,7 +42,7 @@
 
         <dependency>
             <groupId>org.scalacheck</groupId>
-            <artifactId>scalacheck_2.11</artifactId>
+            <artifactId>scalacheck_${scala_major-version}</artifactId>
             <version>${scalacheck_version}</version>
             <scope>test</scope>
         </dependency>
@@ -64,7 +65,6 @@
                         <goals>
                             <goal>add-source</goal>
                             <goal>compile</goal>
-                            <!--<goal>testCompile</goal>-->
                         </goals>
                     </execution>
                     <execution>
@@ -113,7 +113,7 @@
             <plugin>
                 <groupId>com.seanshubin.detangler</groupId>
                 <artifactId>detangler-maven-plugin</artifactId>
-                <version>0.9.1</version>
+                <version>${detangler-maven-plugin_version}</version>
                 <executions>
                     <execution>
                         <phase>verify</phase>
