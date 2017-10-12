@@ -50,7 +50,8 @@ class EitherMonadSpec extends FlatSpec with Matchers with PropertyChecks {
       Left(Err("Date is prior to beginning of time.", 19691231))
 
     // or call with a custom message
-    failure("This is not an Err") shouldBe Left(ErrorC.fromMessage("This is not an Err"))
+    failure("This is not an Err") shouldBe
+      Left(ErrorC.fromMessage("This is not an Err"))
 
     // or call with a throwable
     val exc = new RuntimeException("This is not an Err")
@@ -142,7 +143,7 @@ class EitherMonadSpec extends FlatSpec with Matchers with PropertyChecks {
     }
   }
 
-  "`get', `getError', `getOrElse', and `getOrThrow'" should "be more accessors" in {
+  "`get', `getError', `getOrElse', and `getOrThrow'" should "accessors" in {
     // when
     val inner = new Foo
     val foo = Right(inner)
@@ -185,7 +186,7 @@ class EitherMonadSpec extends FlatSpec with Matchers with PropertyChecks {
     }
   }
 
-  "you" should "be able to manipulate Either values like you'd manipulate booleans" in {
+  "you" should "be able to manipulate Either values like booleans" in {
     // give
     val err1 = failure
     val err2 = failure("This is not e2.")
@@ -359,6 +360,20 @@ class EitherMonadSpec extends FlatSpec with Matchers with PropertyChecks {
     ))
 
     atmTxn("12", 10) shouldBe Left(ErrorC.fromMessage("Insufficient Funds!"))
+  }
+
+  "chaining computations" should "exhibit short circuit logic" in {
+    // given
+    var `launched the missiles`: Boolean = false
+    def launchTheMissiles(): Unit = { `launched the missiles` = true }
+
+    // when
+    safely("12".toInt)
+      .flatMap { n => ensure(n > 15) }
+      .and { Right(launchTheMissiles()) }
+
+    // then
+    `launched the missiles` shouldBe false
   }
 
   "`ensure'" should "be usable in arbitrary for comprehensions" in {
