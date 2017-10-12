@@ -5,6 +5,7 @@ package com.cj.eithererror
 
 import scala.collection.generic.CanBuildFrom
 import scala.collection.{TraversableLike, mutable}
+import scala.util.Try
 
 object EitherMonad {
 
@@ -24,7 +25,15 @@ object EitherMonad {
 
   def failure[E: ErrorC, A]: Either[E, A] = Left(coerce(null))
 
-  implicit class EitherMonadInstance[E, A](val self: Either[E, A]) {
+  implicit class OptionToEither[E: ErrorC, A](self: Option[A]) {
+    def toEither: Either[E, A] = safely(self.get)
+  }
+
+  implicit class TryToEither[E: ErrorC, A](self: Try[A]) {
+    def toEither: Either[E, A] = safely(self.get)
+  }
+
+  implicit class EitherMonadInstance[E, A](self: Either[E, A]) {
 
     def get: Option[A] = self.fold(_ => None, Option(_))
 
@@ -67,6 +76,10 @@ object EitherMonad {
 
     def translate[F: ErrorC](implicit ev: ErrorC[E]): Either[F, A] =
       safely[F, A] { getOrThrow }
+
+    def toOption: Option[A] = get
+
+    def toTry(implicit ev: ErrorC[E]): Try[A] = Try(getOrThrow)
   }
 
   def safe[E: ErrorC, A, X](f: A => X): A => Either[E, X] = a => safely(f(a))
