@@ -1,7 +1,7 @@
 // Copyright (c) 2017 CJ Engineering under the terms of the MIT License
 // See LICENSE in project root.
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.FlatSpec
 
 class JavaAPISpec extends FlatSpec {
 
@@ -34,7 +34,6 @@ class JavaAPISpec extends FlatSpec {
     import EitherContextSpec._
     eitherContextShouldBeVisible()
     eitherContextShouldMakeItsStrategyVisible()
-    eitherShouldHideItsConstructor()
     unsafeShouldConstructAnEither()
     safelyShouldConstructAnEither()
     safelyShouldAcceptADeferredAlternative()

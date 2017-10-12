@@ -25,12 +25,7 @@ public class EitherContextSpec {
         ErrorStrategy<String> es = ErrorStrategies.string;
         EitherContext<String> ec = new EitherContext<>(es);
         assert_("EitherContext should make its ErrorStrategy visible.",
-                ec.strategy.equals(es));
-    }
-
-    public static void eitherShouldHideItsConstructor() {
-        assert_("Either should hide its constructor.",
-                EitherContext.Either.class.getConstructors().length == 0);
+                ec.strategy().equals(es));
     }
 
     public static void unsafeShouldConstructAnEither() {
