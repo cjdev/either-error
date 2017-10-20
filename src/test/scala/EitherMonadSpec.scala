@@ -6,7 +6,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class EitherMonadSpec extends FlatSpec with Matchers with PropertyChecks {
 
-  // The EitherMonad interface provides automatic marshalling/unmarshalling
+  // The EitherMonad interface provides automatic marshalling/unmarshalling and
   // combinators for functions and values that have the possibility of failure.
 
   // imports `safely', `ensure', `failure', `safe', `lift', `bind', `traverse',
@@ -151,13 +151,13 @@ class EitherMonadSpec extends FlatSpec with Matchers with PropertyChecks {
     val fallback = new Bar
 
     // then
-    err.get shouldBe 'isEmpty
+    err.getValue shouldBe 'isEmpty
     err.getError shouldBe 'nonEmpty
     err.getOrElse(fallback) shouldBe fallback
     a[Throwable] should be thrownBy err.getOrThrow
 
     // and
-    foo.get shouldBe 'nonEmpty
+    foo.getValue shouldBe 'nonEmpty
     foo.getError shouldBe 'isEmpty
     foo.getOrElse(fallback) shouldBe inner
     foo.getOrThrow shouldBe inner
@@ -174,8 +174,8 @@ class EitherMonadSpec extends FlatSpec with Matchers with PropertyChecks {
     def launchMissiles(): Unit = `launched missiles` = true
 
     // when
-    foo.foreach { (f: Foo) => takeOffEveryZig() }
-    err.foreach { (f: Foo) => launchMissiles() }
+    foo.foreach { (_: Foo) => takeOffEveryZig() }
+    err.foreach { (_: Foo) => launchMissiles() }
 
     // then
     withClue("The action occurs if the Either was a success:") {

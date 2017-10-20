@@ -6,7 +6,7 @@
 
     <groupId>com.cj</groupId>
     <artifactId>either-error_2.11</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
 
 
 
@@ -19,6 +19,7 @@
         <scalacheck_version>1.13.5</scalacheck_version>
         <maven-compiler-plugin_version>3.7.0</maven-compiler-plugin_version>
         <scala-maven-plugin_version>3.3.1</scala-maven-plugin_version>
+        <macro-paradise_version>2.1.0</macro-paradise_version>
         <scalatest-maven-plugin_version>1.0</scalatest-maven-plugin_version>
         <detangler-maven-plugin_version>0.9.1</detangler-maven-plugin_version>
     </properties>
@@ -55,28 +56,6 @@
         <plugins>
 
             <plugin>
-                <groupId>net.alchim31.maven</groupId>
-                <artifactId>scala-maven-plugin</artifactId>
-                <version>${scala-maven-plugin_version}</version>
-                <executions>
-                    <execution>
-                        <id>scala-compile-first</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>scala-test-compile</id>
-                        <goals>
-                            <goal>testCompile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin_version}</version>
@@ -87,6 +66,35 @@
                 <executions>
                     <execution>
                         <phase>compile</phase>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+                <version>${scala-maven-plugin_version}</version>
+                <!--<configuration>-->
+                    <!--<compilerPlugins>-->
+                        <!--<compilerPlugin>-->
+                            <!--<groupId>org.scala-lang.plugins</groupId>-->
+                            <!--<artifactId>macro-paradise_${scala_minor-version}</artifactId>-->
+                            <!--<version>${macro-paradise_version}</version>-->
+                        <!--</compilerPlugin>-->
+                    <!--</compilerPlugins>-->
+                <!--</configuration>-->
+                <executions>
+                    <execution>
+                        <id>scala-compile</id>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>scala-test-compile</id>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

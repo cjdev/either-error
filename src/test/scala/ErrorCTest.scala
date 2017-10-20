@@ -35,6 +35,14 @@ class ErrorCTest extends FlatSpec with Matchers with PropertyChecks {
     }
   }
 
+  "classNameAndMessage" should "fail to preserve values through Throwable" in {
+
+    import Instances.throwingClassAndMessage
+
+    val msg = ""
+    fromThrowable(toThrowable(msg)) shouldNot be(msg)
+  }
+
   "messageAndCause" should "preserve passing values through Throwable" in {
 
     import Instances.messageAndCause
@@ -44,11 +52,19 @@ class ErrorCTest extends FlatSpec with Matchers with PropertyChecks {
     }
   }
 
-  "classNameAndMessage" should "fail to preserve values through Throwable" in {
-
-    import Instances.classNameAndMessage
-
-    val msg = ""
-    fromThrowable(toThrowable(msg)) shouldNot be(msg)
-  }
+//  "classAndLine" should "fail to preserve values through Throwable" in {
+//
+//    import Instances.classAndLine
+//
+//    val msg = ""
+//    fromThrowable(toThrowable(msg)) shouldNot be(msg)
+//  }
+//
+//  "classAndLine" should "prepend the class name and line number to messages" in {
+//
+//    import Instances.classAndLine
+//
+//    val msg = "foo bar baz"
+//    fromMessage(msg) shouldBe Left(s"[ErrorCTest:68] $msg")
+//  }
 }

@@ -9,35 +9,71 @@ import scala.util.Try
 
 object EitherMonad {
 
+  /**
+    * Perform the supplied computation and construct an [[Either]], catching
+    * thrown [[Throwable]]s and performing a null check so that the value of a
+    * [[Right]] result is guaranteed non-null. The `alt` parameter is used to
+    * construct an error value in case the computation fails.
+    */
   def safely[E: ErrorC, A](a: => A, alt: => Any): Either[E, A] =
     safelyPrimitive(a).left.map(_ => coerce(alt))
 
+  /**
+    * Perform the supplied computation and construct an [[Either]], catching
+    * thrown [[Throwable]]s and performing a null check so that the value of a
+    * [[Right]] result is guaranteed non-null.
+    */
   def safely[E: ErrorC, A](a: => A): Either[E, A] =
     safelyPrimitive(a).left.map(err => coerce(err))
 
+  /**
+    * Represent a [[Boolean]] condition as an [[Either]]. Useful for enforcing
+    * preconditions, e.g. within a for comprehension block. The `alt` parameter
+    * is used to construct an error value in case the computation fails.
+    */
   def ensure[E: ErrorC](p: Boolean, alt: => Any): Either[E, Unit] =
     ensurePrimitive(p).left.map(_ => coerce(alt))
 
+  /**
+    * Represent a [[Boolean]] condition as an [[Either]]. Useful for enforcing
+    * preconditions, e.g. within a for comprehension block.
+    */
   def ensure[E: ErrorC](p: Boolean): Either[E, Unit] =
     ensurePrimitive(p).left.map(_ => coerce(null))
 
+  /**
+    * Construct a [[Left]] value using the supplied `alt` parameter.
+    */
   def failure[E: ErrorC, A](alt: Any): Either[E, A] = Left(coerce(alt))
 
+  /**
+    * Construct a [[Left]] value using [[ErrorC.getDefault]].
+    */
   def failure[E: ErrorC, A]: Either[E, A] = Left(coerce(null))
 
+  /**
+    * Provides `toEither` method on `Option`.
+    */
   implicit class OptionToEither[E: ErrorC, A](self: Option[A]) {
     def toEither: Either[E, A] = safely(self.get)
   }
 
+  /**
+    * Provieds `toEither` method on `Try`.
+    */
   implicit class TryToEither[E: ErrorC, A](self: Try[A]) {
     def toEither: Either[E, A] = safely(self.get)
   }
 
+  /**
+    * Provides combinators and convenience methods to `Either` similar to those
+    * found in the [[scala.collection]] library.
+    */
   implicit class EitherMonadInstance[E, A](self: Either[E, A]) {
 
-    def get: Option[A] = self.fold(_ => None, Option(_))
-
     def getError: Option[E] = self.fold(Option(_), _ => None)
+
+    def getValue: Option[A] = self.fold(_ => None, Option(_))
 
     def getOrElse(a: => A): A = self.fold(_ => a, identity)
 
@@ -60,7 +96,7 @@ object EitherMonad {
       filter(p)
 
     def ap[B](ef: Either[E, A => B]): Either[E, B] =
-      for {f <- ef; a <- self} yield f(a)
+      for { f <- ef; a <- self } yield f(a)
 
     def flatten[B](implicit ev: A <:< Either[E, B]): Either[E, B] = flatMap(ev)
 
@@ -77,7 +113,7 @@ object EitherMonad {
     def translate[F: ErrorC](implicit ev: ErrorC[E]): Either[F, A] =
       safely[F, A] { getOrThrow }
 
-    def toOption: Option[A] = get
+    def toOption: Option[A] = getValue
 
     def toTry(implicit ev: ErrorC[E]): Try[A] = Try(getOrThrow)
   }
