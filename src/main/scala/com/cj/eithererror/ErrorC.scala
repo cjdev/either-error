@@ -43,7 +43,7 @@ object ErrorC {
   object Instances {
 
     /**
-      * Captures the message (if present) of thrown [[Throwable]]s.
+      * Captures the message (if present) from thrown [[Throwable]]s.
       */
     implicit lazy val errorString: ErrorC[String] = new ErrorC[String] {
       def fromMessage(msg: String): String = msg
@@ -73,7 +73,7 @@ object ErrorC {
     }
 
     /**
-      * Captures the class name and message of thrown [[Throwable]]s.
+      * Captures the class name and message from thrown [[Throwable]]s.
       */
     implicit lazy val throwingClassAndMessage: ErrorC[String] = new ErrorC[String] {
       def fromMessage(msg: String): String = msg
@@ -81,7 +81,7 @@ object ErrorC {
     }
 
     /**
-      * Captures the message and cause (whenever present) of thrown [[Throwable]]s.
+      * Captures the message and cause (whenever present) from thrown [[Throwable]]s.
       */
     implicit lazy val messageAndCause: ErrorC[(String, Option[Throwable])] =
       new ErrorC[(String, Option[Throwable])] {
