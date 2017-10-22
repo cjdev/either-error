@@ -97,42 +97,5 @@ object ErrorC {
             case None => new Throwable(e._1)
           }
       }
-
-//    /**
-//      * Captures the line number and enclosing class name from source code,
-//      * written in the format `[$CLASS:$LINE]: $msg`, similar to a logger.
-//      */
-//    implicit lazy val classAndLine: ErrorC[String] = new ErrorC[String] {
-//      import Macros._
-//      def fromMessage(msg: String): String = s"[$CLASS:$LINE]: $msg"
-//    }
-//
-//    /**
-//      * Captures the file name of the source code file and the line number
-//      * wherein at the point the error was created, formatted as
-//      * `[$FILE:$LINE]: $msg`, similar to a logger.
-//      */
-//    implicit lazy val fileAndLine: ErrorC[String] = new ErrorC[String] {
-//      import Macros._
-//      def fromMessage(msg: String): String = s"[$FILE:$LINE]: $msg"
-//    }
-//
-//    /**
-//      * Captures the line number, enclosing class, and the thrown [[Throwable]]
-//      * that caused this error (if one exists), encoded as a [[ErrorC.Err]].
-//      */
-//    implicit lazy val structured: ErrorC[Err] = new ErrorC[Err] {
-//      import Macros._
-//
-//      def fromMessage(msg: String): Err = Err(CLASS, LINE, msg, None)
-//
-//      override def fromThrowable(err: Throwable): Err = {
-//        val msg = Option(err.getMessage).getOrElse("")
-//        Err(CLASS, LINE, msg, Some(err))
-//      }
-//
-//      override def toThrowable(e: Err): Throwable =
-//        e.cause.fold (new Throwable(e.toString)) (new Throwable(e.toString, _))
-//    }
   }
 }

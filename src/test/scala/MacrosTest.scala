@@ -31,7 +31,25 @@ class MacrosTest extends FlatSpec with Matchers {
     Bar[Char]().classname shouldBe "Bar"
   }
 
+  "FL" should "decorate a string with the file name and line number" in {
+    val msg: String = "awesome message"
+    val int: Int = scala.util.Random.shuffle(0 to 10).head
+    FL(s"$msg $int") shouldBe s"[$FILE:$LINE]: $msg $int"
+  }
+
+  "CL" should "decorate a string with the class name and line number" in {
+    val msg: String = "awesome message"
+    val int: Int = scala.util.Random.shuffle(0 to 10).head
+    CL(s"$msg $int") shouldBe s"[$CLASS:$LINE]: $msg $int"
+  }
+
+  "FCL" should "decorate a string with the file name, class name, and line number" in {
+    val msg: String = "awesome message"
+    val int: Int = scala.util.Random.shuffle(0 to 10).head
+    FCL(s"$msg $int") shouldBe s"[$FILE:$CLASS:$LINE]: $msg $int"
+  }
+
   "LINE, CLASS, and FILE" should "work" in {
-    println(s"[$FILE:$CLASS:$LINE]: something went /right/ for a change")
+    println(FCL("something went /right/ for a change"))
   }
 }

@@ -10,26 +10,54 @@ object Macros {
 
   def LINE: Int = macro lineImpl
 
-  def lineImpl(c: blackbox.Context): c.Expr[Int] = {
-    import c.universe._
-    val line = Literal(Constant(c.enclosingPosition.line))
-    c.Expr[Int](line)
+  def lineImpl(ctx: blackbox.Context): ctx.Expr[Int] = {
+    import ctx.universe._
+    val line = Literal(Constant(ctx.enclosingPosition.line))
+    ctx.Expr[Int](line)
   }
 
   def CLASS: String = macro classImpl
 
-  def classImpl(c: blackbox.Context): c.Expr[String] = {
-    import c.universe._
-    def nearestClass(s: Symbol): Symbol = if (s.isClass) s else nearestClass(s.owner)
-    val cl = Literal(Constant(nearestClass(c.internal.enclosingOwner).toString.split(" ").last))
-    c.Expr[String](cl)
+  def classImpl(ctx: blackbox.Context): ctx.Expr[String] = {
+    import ctx.universe._
+    def nearestClass(s: Symbol): Symbol =
+      if (s.isClass) s else nearestClass(s.owner)
+    val classname = Literal(Constant(nearestClass(
+      ctx.internal.enclosingOwner).toString.split(" ").last))
+    ctx.Expr[String](classname)
   }
 
   def FILE: String = macro fileImpl
 
-  def fileImpl(c: blackbox.Context): c.Expr[String] = {
-    import c.universe._
-    val basename = Literal(Constant(c.enclosingPosition.source.toString))
-    c.Expr[String](basename)
+  def fileImpl(ctx: blackbox.Context): ctx.Expr[String] = {
+    import ctx.universe._
+    val basename = Literal(Constant(ctx.enclosingPosition.source.toString))
+    ctx.Expr[String](basename)
+  }
+
+  def FL(msg: String): String = macro flImpl
+  def CL(msg: String): String = macro clImpl
+  def FCL(msg: String): String = macro fclImpl
+
+  def flImpl(ctx: blackbox.Context)(msg: ctx.Expr[String]): ctx.Expr[String] = {
+    import ctx.universe._
+    val f = fileImpl(ctx)
+    val l = lineImpl(ctx)
+    reify(s"[${f.splice}:${l.splice}]: ${msg.splice}")
+  }
+
+  def clImpl(ctx: blackbox.Context)(msg: ctx.Expr[String]): ctx.Expr[String] = {
+    import ctx.universe._
+    val c = classImpl(ctx)
+    val l = lineImpl(ctx)
+    reify(s"[${c.splice}:${l.splice}]: ${msg.splice}")
+  }
+
+  def fclImpl(ctx: blackbox.Context)(msg: ctx.Expr[String]): ctx.Expr[String] = {
+    import ctx.universe._
+    val f = fileImpl(ctx)
+    val c = classImpl(ctx)
+    val l = lineImpl(ctx)
+    reify(s"[${f.splice}:${c.splice}:${l.splice}]: ${msg.splice}")
   }
 }
