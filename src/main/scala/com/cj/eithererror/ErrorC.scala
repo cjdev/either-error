@@ -33,13 +33,6 @@ object ErrorC {
   def toThrowable[E: ErrorC](e: E): Throwable =
     implicitly[ErrorC[E]].toThrowable(e)
 
-  case class Err(
-                  clazz: String,
-                  line: Long,
-                  message: String,
-                  cause: Option[Throwable]
-                )
-
   object Instances {
 
     /**
