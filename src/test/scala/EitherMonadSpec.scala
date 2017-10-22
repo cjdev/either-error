@@ -83,7 +83,9 @@ class EitherMonadSpec extends FlatSpec with Matchers with PropertyChecks {
       Left(ErrorC.fromMessage("They were not the same!"))
 
     // the message is optional
-    ensure { 0 == 1 } shouldBe Left(ErrorC.getDefault)
+    ensure { 0 == 1 } shouldBe Left(ErrorC.fromThrowable(
+      new AssertionError("EitherMonad.ensure: condition was false")
+    ))
   }
 
   "`fold'" should "be used to destructure and branch" in {
@@ -429,7 +431,7 @@ class EitherMonadSpec extends FlatSpec with Matchers with PropertyChecks {
     }
 
     withClue("Or you can use `bind' [img: genius_brain.jpg]: ") {
-      val res3 = bind2(doIfDistinct(_/_))(`12`, `4`)
+      val res3 = bind2(doIfDistinct(_/_)).apply(`12`, `4`)
 
       res3 shouldBe Right(3)
     }
@@ -452,12 +454,12 @@ class EitherMonadSpec extends FlatSpec with Matchers with PropertyChecks {
     // bind: (A => Either[*,B]) => (Either[*,A] => Either[*,B])
     // bindN: ((A1,...,AN) => Either[*,B]) => ((Either[*,A1],...,Either[*,AN]) => Either[*,B])
 
-    bind2(div)(`12`, `3`) shouldBe Right(12 / 3)
+    bind2(div).apply(`12`, `3`) shouldBe Right(12 / 3)
 
-    bind2(div)(sayPlz, `3`) shouldBe
+    bind2(div).apply(sayPlz, `3`) shouldBe
       Left(ErrorC.fromMessage("You didn't say the magic word!"))
 
-    bind2(div)(`12`, `0`) shouldBe
+    bind2(div).apply(`12`, `0`) shouldBe
       Left(ErrorC.fromMessage("Division by zero!"))
   }
 
@@ -476,9 +478,9 @@ class EitherMonadSpec extends FlatSpec with Matchers with PropertyChecks {
     // then
     // lift: (A => B) => (Either[*,A] => Either[*,B])
     // liftN: ((A1,...,AN) => B) => ((Either[*,A1],...,Either[*,AN]) => Either[*,B])
-    lift(plus2)(`12`) shouldBe Right(plus2(12))
-    lift2(sumTwo)(`12`, `10`) shouldBe Right(sumTwo(12, 10))
-    lift3(sumThree)(`12`, `10`, err) shouldBe Left(ErrorC.getDefault)
+    lift(plus2).apply(`12`) shouldBe Right(plus2(12))
+    lift2(sumTwo).apply(`12`, `10`) shouldBe Right(sumTwo(12, 10))
+    lift3(sumThree).apply(`12`, `10`, err) shouldBe Left(ErrorC.getDefault)
   }
 
   "`safe'`" should "be used to convert flakey functions into Either-y functions" in {
