@@ -6,7 +6,7 @@
 
     <groupId>com.cj</groupId>
     <artifactId>either-error_2.11</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>1.2.0</version>
 
 
 
@@ -19,7 +19,6 @@
         <scalacheck_version>1.13.5</scalacheck_version>
         <maven-compiler-plugin_version>3.7.0</maven-compiler-plugin_version>
         <scala-maven-plugin_version>3.3.1</scala-maven-plugin_version>
-        <macro-paradise_version>2.1.0</macro-paradise_version>
         <scalatest-maven-plugin_version>1.0</scalatest-maven-plugin_version>
         <detangler-maven-plugin_version>0.9.1</detangler-maven-plugin_version>
     </properties>
@@ -74,15 +73,6 @@
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
                 <version>${scala-maven-plugin_version}</version>
-                <!--<configuration>-->
-                    <!--<compilerPlugins>-->
-                        <!--<compilerPlugin>-->
-                            <!--<groupId>org.scala-lang.plugins</groupId>-->
-                            <!--<artifactId>macro-paradise_${scala_minor-version}</artifactId>-->
-                            <!--<version>${macro-paradise_version}</version>-->
-                        <!--</compilerPlugin>-->
-                    <!--</compilerPlugins>-->
-                <!--</configuration>-->
                 <executions>
                     <execution>
                         <id>scala-compile</id>
