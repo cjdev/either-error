@@ -32,7 +32,7 @@ In your 'pom.xml':
 <dependency>
     <groupId>com.cj</groupId>
     <artifactId>either-error_2.11</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>2.0.0</version>
 </dependency>
 ```
 
