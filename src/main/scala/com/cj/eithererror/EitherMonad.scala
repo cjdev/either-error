@@ -288,7 +288,7 @@ object EitherMonad {
 
   private def coerce[E: ErrorC](alt: => Any): E =
     safelyPrimitive(alt) match {
-      case Left(err) => getDefault
+      case Left(_) => getDefault
       case Right(any) => any match {
         case e: E => e
         case err: Throwable => fromThrowable(err)
