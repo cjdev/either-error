@@ -36,14 +36,14 @@ object ErrorC {
   object Instances {
 
     /**
-      * Captures the message (if present) from thrown [[Throwable]]s.
+      * Captures the message (if present) from throwns.
       */
     implicit lazy val errorString: ErrorC[String] = new ErrorC[String] {
       def fromMessage(msg: String): String = msg
     }
 
     /**
-      * Captures any non-fatal [[Throwable]].
+      * Captures non-fatal throws.
       */
     implicit lazy val errorThrowable: ErrorC[Throwable] = new ErrorC[Throwable] {
       def fromMessage(msg: String): Throwable = new Throwable(msg)
@@ -53,7 +53,7 @@ object ErrorC {
     }
 
     /**
-      * Captures [[Exception]]s. Re-throws non-`Exception` members of [[Throwable]].
+      * Captures thrown [[Exception]]s. Re-throws non-`Exceptions`.
       */
     implicit lazy val errorException: ErrorC[Exception] = new ErrorC[Exception] {
       def fromMessage(msg: String): Exception = new Exception(msg)
@@ -66,15 +66,15 @@ object ErrorC {
     }
 
     /**
-      * Captures the class name and message from thrown [[Throwable]]s.
+      * Captures the class name and message from throws.
       */
-    implicit lazy val throwingClassAndMessage: ErrorC[String] = new ErrorC[String] {
+    implicit lazy val thrownClassAndMessage: ErrorC[String] = new ErrorC[String] {
       def fromMessage(msg: String): String = msg
       override def fromThrowable(err: Throwable): String = fromMessage(err.toString)
     }
 
     /**
-      * Captures the message and cause (whenever present) from thrown [[Throwable]]s.
+      * Captures the message and cause (whenever present) from throwns.
       */
     implicit lazy val messageAndCause: ErrorC[(String, Option[Throwable])] =
       new ErrorC[(String, Option[Throwable])] {

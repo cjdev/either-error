@@ -37,7 +37,7 @@ class ErrorCTest extends FlatSpec with Matchers with PropertyChecks {
 
   "classNameAndMessage" should "fail to preserve values through Throwable" in {
 
-    import Instances.throwingClassAndMessage
+    import Instances.thrownClassAndMessage
 
     val msg = ""
     fromThrowable(toThrowable(msg)) shouldNot be(msg)

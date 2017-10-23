@@ -32,14 +32,14 @@ In your 'pom.xml':
 <dependency>
     <groupId>com.cj</groupId>
     <artifactId>either-error_2.11</artifactId>
-    <version>1.2.0</version>
+    <version>2.0.0-SNAPSHOT</version>
 </dependency>
 ```
 
 In your scala source file:
 
 ```scala
-import com.cj.eithererror._, EitherMonad._, ErrorC.Instances.classNameAndMessage
+import com.cj.eithererror._, EitherMonad._, ErrorC.Instances.thrownClassAndMessage
 ```
 
 ## Usage Example
