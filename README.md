@@ -1,6 +1,6 @@
 # either-error
 
-Generic Error Handling in Scala
+Generic Error Handling in Scala.
 
 Copyright (c) 2017 CJ Engineering under the terms of the MIT License
 See 'LICENSE' in project root.
