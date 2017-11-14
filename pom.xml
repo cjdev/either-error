@@ -5,14 +5,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.cj</groupId>
-    <artifactId>either-error_2.11</artifactId>
+    <artifactId>either-error_2.12</artifactId>
     <version>2.0.0</version>
 
 
 
     <properties>
-        <scala_major-version>2.11</scala_major-version>
-        <scala_minor-version>2.11.11</scala_minor-version>
+        <scala_major-version>2.12</scala_major-version>
+        <scala_minor-version>2.12.4</scala_minor-version>
         <java_source-version>1.8</java_source-version>
         <java_target-version>1.8</java_target-version>
         <scalatest_version>3.0.4</scalatest_version>

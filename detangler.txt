@@ -2,7 +2,7 @@
   reportDir target/detangled
   searchPaths
   [
-    target/either-error_2.11-2.0.0.jar
+    target/either-error_2.12-2.0.0.jar
   ]
   level 1
   startsWith
